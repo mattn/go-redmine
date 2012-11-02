@@ -1,0 +1,80 @@
+# go-redmine
+
+Intefaces to redmine.
+
+## APIs
+
+Provide Interfaces to redmine APIs.
+
+|API                |Implements|
+|-------------------|---------:|
+|Issues             |      100%|
+|Projects           |      100%|
+|Project Memberships|        0%|
+|Users              |        0%|
+|Time Entries       |        0%|
+|News               |        0%|
+|Issue Relations    |        0%|
+|Versions           |        0%|
+|Wiki Pages         |        0%|
+|Queries            |        0%|
+|Attachments        |        0%|
+|Issue Statuses     |      100%|
+|Trackers           |        0%|
+|Enumerations       |        0%|
+|Issue Categories   |        0%|
+|Roles              |        0%|
+|Groups             |        0%|
+
+## Godmine
+
+Provide command line tool for redmine.
+
+### Usage
+
+    gotmine <command> <subcommand> [arguments]
+    
+    Project Commands:
+      add      a create project with text editor.
+                 $ godmine p a
+    
+      create   c create project from given arguments.
+                 $ godmine p c name identifier description
+    
+      update   u update given project.
+                 $ godmine p u 1
+    
+      show     s show given project.
+                 $ godmine p s 1
+    
+      delete   d delete given project.
+                 $ godmine p d 1
+    
+      list     l listing projects.
+                 $ godmine p l
+    
+    Issue Commands:
+      add      a create issue with text editor.
+                 $ godmine i a
+    
+      create   c create issue from given arguments.
+                 $ godmine i c subject description
+    
+      update   u update given issue.
+                 $ godmine i u 1
+    
+      show     s show given issue.
+                 $ godmine i s 1
+    
+      delete   d delete given issue.
+                 $ godmine i d 1
+    
+      close    x close given issue.
+                 $ godmine i x 1
+    
+      notes    n add notes to given issue.
+                 $ godmine i n 1
+    
+      list     l listing issues.
+                 $ godmine i l
+
