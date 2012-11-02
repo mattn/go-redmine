@@ -78,3 +78,23 @@ Provide command line tool for redmine.
       list     l listing issues.
                  $ godmine i l
 
+# Settings
+
+To use this, you should create `settings.json` in:
+
+UNIX:
+
+    ~/.config/godmine/settings.json
+
+WINDOWS:
+
+    %APPDATA%\godmine/settings.json
+
+Write following:
+
+    {
+    	"endpoint": "http://redmine.example.com",
+    	"apikey": "YOUR-API-KEY",
+    	"project": 1 // default issue id
+    }
+

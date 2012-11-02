@@ -51,7 +51,7 @@ func notesFromEditor() (string, error) {
 	file := ""
 	newf := fmt.Sprintf("%d.txt", rand.Int())
 	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("USERPROFILE"), "Application Data", "godmine", newf)
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", newf)
 	} else {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
@@ -89,7 +89,7 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	file := ""
 	newf := fmt.Sprintf("%d.txt", rand.Int())
 	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("USERPROFILE"), "Application Data", "godmine", newf)
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", newf)
 	} else {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
@@ -142,7 +142,7 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 	file := ""
 	newf := fmt.Sprintf("%d.txt", rand.Int())
 	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("USERPROFILE"), "Application Data", "godmine", newf)
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", newf)
 	} else {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
@@ -200,7 +200,7 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 func getConfig() config {
 	file := ""
 	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("USERPROFILE"), "Application Data", "godmine", "settings.json")
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", "settings.json")
 	} else {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", "settings.json")
 	}
