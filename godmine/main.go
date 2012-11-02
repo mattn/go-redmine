@@ -345,17 +345,17 @@ UpdatedOn: %s
 
 %s
 `[1:],
-	issue.Id,
-	issue.Subject,
-	issue.Project.Name,
-	issue.Tracker.Name,
-	issue.Status.Name,
-	issue.Priority.Name,
-	issue.Author.Name,
-	assigned,
-	issue.CreatedOn,
-	issue.UpdatedOn,
-	issue.Description)
+		issue.Id,
+		issue.Subject,
+		issue.Project.Name,
+		issue.Tracker.Name,
+		issue.Status.Name,
+		issue.Priority.Name,
+		issue.Author.Name,
+		assigned,
+		issue.CreatedOn,
+		issue.UpdatedOn,
+		issue.Description)
 }
 
 func listIssues() {
@@ -444,12 +444,12 @@ UpdatedOn: %s
 
 %s
 `[1:],
-	project.Id,
-	project.Name,
-	project.Identifier,
-	project.CreatedOn,
-	project.UpdatedOn,
-	project.Description)
+		project.Id,
+		project.Name,
+		project.Identifier,
+		project.CreatedOn,
+		project.UpdatedOn,
+		project.Description)
 }
 
 func listProjects() {
@@ -516,8 +516,8 @@ Issue Commands:
 
 type config struct {
 	Endpoint string `json:"endpoint"`
-	Apikey string `json:"apikey"`
-	Project int `json:"project"`
+	Apikey   string `json:"apikey"`
+	Project  int    `json:"project"`
 }
 
 func toUtf8(s string) string {

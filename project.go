@@ -21,12 +21,12 @@ type projectsResult struct {
 }
 
 type Project struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Identifier string `json:"identifier"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Identifier  string `json:"identifier"`
 	Description string `json:"description"`
-	CreatedOn string `json:created_on`
-	UpdatedOn string `json:updated_on`
+	CreatedOn   string `json:created_on`
+	UpdatedOn   string `json:updated_on`
 }
 
 func (c *client) Project(id int) (*Project, error) {
@@ -84,7 +84,7 @@ func (c *client) CreateProject(project Project) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", c.endpoint + "/projects.json?key=" + c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("POST", c.endpoint+"/projects.json?key="+c.apikey, strings.NewReader(string(s)))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (c *client) UpdateProject(project Project) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", c.endpoint + "/projects/" + strconv.Itoa(project.Id) + ".json?key=" + c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("PUT", c.endpoint+"/projects/"+strconv.Itoa(project.Id)+".json?key="+c.apikey, strings.NewReader(string(s)))
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (c *client) UpdateProject(project Project) error {
 }
 
 func (c *client) DeleteProject(id int) error {
-	req, err := http.NewRequest("DELETE", c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?key=" + c.apikey, strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", c.endpoint+"/projects/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
 	if err != nil {
 		return err
 	}

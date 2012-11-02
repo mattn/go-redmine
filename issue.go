@@ -21,21 +21,21 @@ type issuesResult struct {
 }
 
 type Issue struct {
-	Id int `json:"id"`
-	Subject string `json:"subject"`
-	Description string `json:"description"`
-	ProjectId int `json:"project_id"`
-	Project *IdName `json:"project"`
-	Tracker *IdName `json:"tracker"`
-	StatusId int `json:"status_id"`
-	Status *IdName `json:"status"`
-	Priority *IdName `json:"priority"`
-	Author *IdName `json:"author"`
-	Assigned *IdName `json:"assigned"`
-	Notes string `json:"notes"`
-	StatusDate string `json:"status_date"`
-	CreatedOn string `json:"created_on"`
-	UpdatedOn string `json:"updated_on"`
+	Id          int     `json:"id"`
+	Subject     string  `json:"subject"`
+	Description string  `json:"description"`
+	ProjectId   int     `json:"project_id"`
+	Project     *IdName `json:"project"`
+	Tracker     *IdName `json:"tracker"`
+	StatusId    int     `json:"status_id"`
+	Status      *IdName `json:"status"`
+	Priority    *IdName `json:"priority"`
+	Author      *IdName `json:"author"`
+	Assigned    *IdName `json:"assigned"`
+	Notes       string  `json:"notes"`
+	StatusDate  string  `json:"status_date"`
+	CreatedOn   string  `json:"created_on"`
+	UpdatedOn   string  `json:"updated_on"`
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
@@ -63,7 +63,7 @@ func (c *client) IssuesOf(projectId int) ([]Issue, error) {
 }
 
 func (c *client) Issue(id int) (*Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues/" + strconv.Itoa(id) +".json?key=" + c.apikey)
+	res, err := http.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if res.StatusCode == 404 {
 		return nil, errors.New("Not Found")
 	}
@@ -120,7 +120,7 @@ func (c *client) CreateIssue(issue Issue) (*Issue, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", c.endpoint + "/issues.json?key=" + c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("POST", c.endpoint+"/issues.json?key="+c.apikey, strings.NewReader(string(s)))
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (c *client) UpdateIssue(issue Issue) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", c.endpoint + "/issues/" + strconv.Itoa(issue.Id) + ".json?key=" + c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("PUT", c.endpoint+"/issues/"+strconv.Itoa(issue.Id)+".json?key="+c.apikey, strings.NewReader(string(s)))
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func (c *client) UpdateIssue(issue Issue) error {
 }
 
 func (c *client) DeleteIssue(id int) error {
-	req, err := http.NewRequest("DELETE", c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey, strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", c.endpoint+"/issues/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
 	if err != nil {
 		return err
 	}

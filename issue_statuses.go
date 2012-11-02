@@ -12,10 +12,10 @@ type issueStatusesResult struct {
 }
 
 type IssueStatus struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	IsDefault bool `json:"is_default"`
-	IsClosed bool `json:"is_closed"`
+	Id        int    `json:"id"`
+	Name      string `json:"name"`
+	IsDefault bool   `json:"is_default"`
+	IsClosed  bool   `json:"is_closed"`
 }
 
 func (c *client) IssueStatuses() ([]IssueStatus, error) {
