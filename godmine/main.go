@@ -464,6 +464,79 @@ func listProjects() {
 	}
 }
 
+func showMembership(id int) {
+	config := getConfig()
+	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	membership, err := c.Membership(id)
+	if err != nil {
+		fatal("Failed to show membership: %s\n", err)
+	}
+
+	fmt.Printf(`
+Id: %d
+Project: %s
+User: %s
+Role: `[1:],
+		membership.Id,
+		membership.Project.Name,
+		membership.User.Name)
+	for i, role := range membership.Roles {
+		if i != 0 {
+			fmt.Print(", ")
+		}
+		fmt.Printf(role.Name)
+	}
+	fmt.Println()
+}
+
+func listMemberships(projectId int) {
+	config := getConfig()
+	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	memberships, err := c.Memberships(projectId)
+	if err != nil {
+		fatal("Failed to list memberships: %s\n", err)
+	}
+	for _, i := range memberships {
+		fmt.Printf("%4d: %s\n", i.Id, i.User.Name)
+	}
+}
+
+func showUser(id int) {
+	config := getConfig()
+	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	user, err := c.User(id)
+	if err != nil {
+		fatal("Failed to show user: %s\n", err)
+	}
+
+	fmt.Printf(`
+Id: %d
+Login: %s
+Firstname: %s
+Lastname: %s
+Mail: %s
+CreatedOn: %s
+`[1:],
+		user.Id,
+		user.Login,
+		user.Firstname,
+		user.Lastname,
+		user.Mail,
+		user.CreatedOn)
+}
+
+func listUsers() {
+	config := getConfig()
+	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	users, err := c.Users()
+	if err != nil {
+		fatal("Failed to list users: %s\n", err)
+	}
+	for _, i := range users {
+		fmt.Printf("%4d: %s\n", i.Id, i.Login)
+	}
+}
+
 func usage() {
 	fmt.Println(`gotmine <command> <subcommand> [arguments]
 
@@ -645,6 +718,52 @@ func main() {
 			break
 		case "l", "list":
 			listProjects()
+			break
+		default:
+			usage()
+		}
+	case "m", "membership":
+		switch os.Args[2] {
+		case "s", "show":
+			if len(os.Args) == 4 {
+				id, err := strconv.Atoi(os.Args[3])
+				if err != nil {
+					fatal("Invalid membership id: %s\n", err)
+				}
+				showMembership(id)
+			} else {
+				usage()
+			}
+			break
+		case "l", "list":
+			if len(os.Args) == 4 {
+				projectId, err := strconv.Atoi(os.Args[3])
+				if err != nil {
+					fatal("Invalid project id: %s\n", err)
+				}
+				listMemberships(projectId)
+			} else {
+				usage()
+			}
+			break
+		default:
+			usage()
+		}
+	case "u", "user":
+		switch os.Args[2] {
+		case "s", "show":
+			if len(os.Args) == 4 {
+				id, err := strconv.Atoi(os.Args[3])
+				if err != nil {
+					fatal("Invalid user id: %s\n", err)
+				}
+				showUser(id)
+			} else {
+				usage()
+			}
+			break
+		case "l", "list":
+			listUsers()
 			break
 		default:
 			usage()
