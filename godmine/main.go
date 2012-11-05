@@ -583,6 +583,20 @@ Issue Commands:
 
   list     l listing issues.
              $ godmine i l
+
+Membership Commands:
+  show     s show given membership.
+             $ godmine m s 1
+
+  list     l listing memberships of given project.
+             $ godmine m l 1
+
+User Commands:
+  show     s show given user.
+             $ godmine u s 1
+
+  list     l listing users.
+             $ godmine u l
 `)
 	os.Exit(1)
 }
