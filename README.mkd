@@ -95,6 +95,6 @@ Write following:
     {
     	"endpoint": "http://redmine.example.com",
     	"apikey": "YOUR-API-KEY",
-    	"project": 1 // default issue id
+    	"project": 1 // default project id
     }
 
