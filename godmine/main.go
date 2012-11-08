@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"flag"
 	"github.com/mattn/go-iconv"
 	"github.com/mattn/go-redmine"
 	"io/ioutil"
@@ -198,11 +199,16 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 }
 
 func getConfig() config {
-	file := ""
+	file := "settings.json"
+
+	if *profile != "" {
+		file = "settings." + *profile + ".json"
+	}
+
 	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("APPDATA"), "godmine", "settings.json")
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", file)
 	} else {
-		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", "settings.json")
+		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", file)
 	}
 
 	b, err := ioutil.ReadFile(file)
@@ -617,27 +623,30 @@ func toUtf8(s string) string {
 	return ret
 }
 
+var profile *string = flag.String("p", "", "profile")
+
 func main() {
-	if len(os.Args) <= 2 {
+	flag.Parse()
+	if flag.NArg() <= 1 {
 		usage()
 	}
 
-	switch os.Args[1] {
+	switch flag.Arg(0) {
 	case "i", "issue":
-		switch os.Args[2] {
+		switch flag.Arg(1) {
 		case "a", "add":
 			createIssue()
 			break
 		case "c", "create":
-			if len(os.Args) == 5 {
-				addIssue(os.Args[3], os.Args[4])
+			if flag.NArg() == 4 {
+				addIssue(flag.Arg(2), flag.Arg(3))
 			} else {
 				usage()
 			}
 			break
 		case "u", "update":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid issue id: %s\n", err)
 				}
@@ -647,8 +656,8 @@ func main() {
 			}
 			break
 		case "d", "delete":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid issue id: %s\n", err)
 				}
@@ -658,8 +667,8 @@ func main() {
 			}
 			break
 		case "n", "notes":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid issue id: %s\n", err)
 				}
@@ -669,8 +678,8 @@ func main() {
 			}
 			break
 		case "s", "show":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid issue id: %s\n", err)
 				}
@@ -680,8 +689,8 @@ func main() {
 			}
 			break
 		case "x", "close":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid issue id: %s\n", err)
 				}
@@ -697,20 +706,20 @@ func main() {
 			usage()
 		}
 	case "p", "project":
-		switch os.Args[2] {
+		switch flag.Arg(1) {
 		case "a", "add":
 			createProject()
 			break
 		case "c", "create":
-			if len(os.Args) == 6 {
-				addProject(os.Args[3], os.Args[4], os.Args[5])
+			if flag.NArg() == 5 {
+				addProject(flag.Arg(2), flag.Arg(3), flag.Arg(4))
 			} else {
 				usage()
 			}
 			break
 		case "s", "show":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid project id: %s\n", err)
 				}
@@ -720,8 +729,8 @@ func main() {
 			}
 			break
 		case "d", "delete":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid project id: %s\n", err)
 				}
@@ -737,10 +746,10 @@ func main() {
 			usage()
 		}
 	case "m", "membership":
-		switch os.Args[2] {
+		switch flag.Arg(1) {
 		case "s", "show":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid membership id: %s\n", err)
 				}
@@ -750,8 +759,8 @@ func main() {
 			}
 			break
 		case "l", "list":
-			if len(os.Args) == 4 {
-				projectId, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				projectId, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid project id: %s\n", err)
 				}
@@ -764,10 +773,10 @@ func main() {
 			usage()
 		}
 	case "u", "user":
-		switch os.Args[2] {
+		switch flag.Arg(1) {
 		case "s", "show":
-			if len(os.Args) == 4 {
-				id, err := strconv.Atoi(os.Args[3])
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
 				if err != nil {
 					fatal("Invalid user id: %s\n", err)
 				}
