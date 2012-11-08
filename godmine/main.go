@@ -17,6 +17,16 @@ import (
 	"strings"
 )
 
+type config struct {
+	Endpoint string `json:"endpoint"`
+	Apikey   string `json:"apikey"`
+	Project  int    `json:"project"`
+	Editor   string `json:"editor"`
+}
+
+var profile *string = flag.String("p", os.Getenv("GODMINE_ENV"), "profile")
+var conf config
+
 func fatal(format string, err error) {
 	fmt.Fprintf(os.Stderr, format, err)
 	os.Exit(1)
@@ -57,14 +67,7 @@ func notesFromEditor() (string, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := os.Getenv("EDITOR")
-	if len(editor) == 0 {
-		if runtime.GOOS == "windows" {
-			editor = "notepad"
-		} else {
-			editor = "vim"
-		}
-	}
+	editor := getEditor()
 
 	contents := "### Notes Here ###\n"
 
@@ -95,14 +98,7 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := os.Getenv("EDITOR")
-	if len(editor) == 0 {
-		if runtime.GOOS == "windows" {
-			editor = "notepad"
-		} else {
-			editor = "vim"
-		}
-	}
+	editor := getEditor()
 
 	if contents == "" {
 		contents = "### Subject Here ###\n### Description Here ###\n"
@@ -148,14 +144,7 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := os.Getenv("EDITOR")
-	if len(editor) == 0 {
-		if runtime.GOOS == "windows" {
-			editor = "notepad"
-		} else {
-			editor = "vim"
-		}
-	}
+	editor := getEditor()
 
 	if contents == "" {
 		contents = "### Name Here ###\n### Identifier Here ###\n### Description Here ###\n"
@@ -198,6 +187,20 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 	return &project, nil
 }
 
+func getEditor() string {
+	editor := conf.Editor
+	if editor == "" {
+		editor = os.Getenv("EDITOR")
+		if editor == "" {
+			if runtime.GOOS == "windows" {
+				editor = "notepad"
+			} else {
+				editor = "vim"
+			}
+		}
+	}
+	return editor
+}
 func getConfig() config {
 	file := "settings.json"
 
@@ -224,10 +227,9 @@ func getConfig() config {
 }
 
 func addIssue(subject, description string) {
-	config := getConfig()
 	var issue redmine.Issue
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
-	issue.ProjectId = config.Project
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	issue.ProjectId = conf.Project
 	issue.Subject = subject
 	issue.Description = description
 	_, err := c.CreateIssue(issue)
@@ -237,13 +239,12 @@ func addIssue(subject, description string) {
 }
 
 func createIssue() {
-	config := getConfig()
 	issue, err := issueFromEditor("")
 	if err != nil {
 		fatal("%s\n", err)
 	}
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
-	issue.ProjectId = config.Project
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	issue.ProjectId = conf.Project
 	_, err = c.CreateIssue(*issue)
 	if err != nil {
 		fatal("Failed to create issue: %s\n", err)
@@ -251,9 +252,7 @@ func createIssue() {
 }
 
 func updateIssue(id int) {
-	config := getConfig()
-
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issue, err := c.Issue(id)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
@@ -264,7 +263,7 @@ func updateIssue(id int) {
 	}
 	issue.Subject = issueNew.Subject
 	issue.Description = issueNew.Description
-	issue.ProjectId = config.Project
+	issue.ProjectId = conf.Project
 	err = c.UpdateIssue(*issue)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
@@ -272,9 +271,7 @@ func updateIssue(id int) {
 }
 
 func deleteIssue(id int) {
-	config := getConfig()
-
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	err := c.DeleteIssue(id)
 	if err != nil {
 		fatal("Failed to delete issue: %s\n", err)
@@ -282,9 +279,7 @@ func deleteIssue(id int) {
 }
 
 func closeIssue(id int) {
-	config := getConfig()
-
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issue, err := c.Issue(id)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
@@ -306,19 +301,17 @@ func closeIssue(id int) {
 }
 
 func notesIssue(id int) {
-	config := getConfig()
-
 	content, err := notesFromEditor()
 	if err != nil {
 		fatal("%s\n", err)
 	}
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issue, err := c.Issue(id)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
 	}
 	issue.Notes = content
-	issue.ProjectId = config.Project
+	issue.ProjectId = conf.Project
 	err = c.UpdateIssue(*issue)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
@@ -326,8 +319,7 @@ func notesIssue(id int) {
 }
 
 func showIssue(id int) {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issue, err := c.Issue(id)
 	if err != nil {
 		fatal("Failed to show issue: %s\n", err)
@@ -365,8 +357,7 @@ UpdatedOn: %s
 }
 
 func listIssues() {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issues, err := c.Issues()
 	if err != nil {
 		fatal("Failed to list issues: %s\n", err)
@@ -377,9 +368,8 @@ func listIssues() {
 }
 
 func addProject(name, identifier, description string) {
-	config := getConfig()
 	var project redmine.Project
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	project.Name = name
 	project.Identifier = identifier
 	project.Description = description
@@ -390,12 +380,11 @@ func addProject(name, identifier, description string) {
 }
 
 func createProject() {
-	config := getConfig()
 	project, err := projectFromEditor("")
 	if err != nil {
 		fatal("%s\n", err)
 	}
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	_, err = c.CreateProject(*project)
 	if err != nil {
 		fatal("Failed to create project: %s\n", err)
@@ -403,9 +392,7 @@ func createProject() {
 }
 
 func updateProject(id int) {
-	config := getConfig()
-
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	project, err := c.Project(id)
 	if err != nil {
 		fatal("Failed to update project: %s\n", err)
@@ -424,9 +411,7 @@ func updateProject(id int) {
 }
 
 func deleteProject(id int) {
-	config := getConfig()
-
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	err := c.DeleteProject(id)
 	if err != nil {
 		fatal("Failed to delete project: %s\n", err)
@@ -434,8 +419,7 @@ func deleteProject(id int) {
 }
 
 func showProject(id int) {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	project, err := c.Project(id)
 	if err != nil {
 		fatal("Failed to show project: %s\n", err)
@@ -459,8 +443,7 @@ UpdatedOn: %s
 }
 
 func listProjects() {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issues, err := c.Projects()
 	if err != nil {
 		fatal("Failed to list projects: %s\n", err)
@@ -471,8 +454,7 @@ func listProjects() {
 }
 
 func showMembership(id int) {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	membership, err := c.Membership(id)
 	if err != nil {
 		fatal("Failed to show membership: %s\n", err)
@@ -496,8 +478,7 @@ Role: `[1:],
 }
 
 func listMemberships(projectId int) {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	memberships, err := c.Memberships(projectId)
 	if err != nil {
 		fatal("Failed to list memberships: %s\n", err)
@@ -508,8 +489,7 @@ func listMemberships(projectId int) {
 }
 
 func showUser(id int) {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	user, err := c.User(id)
 	if err != nil {
 		fatal("Failed to show user: %s\n", err)
@@ -532,8 +512,7 @@ CreatedOn: %s
 }
 
 func listUsers() {
-	config := getConfig()
-	c := redmine.NewClient(config.Endpoint, config.Apikey)
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	users, err := c.Users()
 	if err != nil {
 		fatal("Failed to list users: %s\n", err)
@@ -607,12 +586,6 @@ User Commands:
 	os.Exit(1)
 }
 
-type config struct {
-	Endpoint string `json:"endpoint"`
-	Apikey   string `json:"apikey"`
-	Project  int    `json:"project"`
-}
-
 func toUtf8(s string) string {
 	ic, err := iconv.Open("char", "UTF-8")
 	if err != nil {
@@ -623,13 +596,12 @@ func toUtf8(s string) string {
 	return ret
 }
 
-var profile *string = flag.String("p", "", "profile")
-
 func main() {
 	flag.Parse()
 	if flag.NArg() <= 1 {
 		usage()
 	}
+	conf = getConfig()
 
 	switch flag.Arg(0) {
 	case "i", "issue":
