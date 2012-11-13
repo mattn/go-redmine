@@ -13,11 +13,11 @@ type newsResult struct {
 }
 
 type News struct {
-	Id      int      `json:"id"`
-	Project IdName   `json:"project"`
-	Title   string   `json:"title"`
-	Summary string   `json:"summary"`
-	Description string   `json:"description"`
+	Id          int    `json:"id"`
+	Project     IdName `json:"project"`
+	Title       string `json:"title"`
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
 	CreatedOn   string `json:created_on`
 }
 

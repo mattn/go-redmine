@@ -12,7 +12,7 @@ Provide Interfaces to redmine APIs.
 |Projects           |      100%|
 |Project Memberships|      100%|
 |Users              |        0%|
-|Time Entries       |        0%|
+|Time Entries       |      100%|
 |News               |      100%|
 |Issue Relations    |        0%|
 |Versions           |        0%|
