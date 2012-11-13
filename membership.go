@@ -25,6 +25,7 @@ type Membership struct {
 	Project IdName   `json:"project"`
 	User    IdName   `json:"user"`
 	Roles   []IdName `json:"roles"`
+	Groups  []IdName `json:"groups"`
 }
 
 func (c *client) Memberships(projectId int) ([]Membership, error) {

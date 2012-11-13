@@ -17,12 +17,14 @@ type usersResult struct {
 }
 
 type User struct {
-	Id        int    `json:"id"`
-	Login     string `json:"login"`
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Mail      string `json:"mail"`
-	CreatedOn string `json:"created_on"`
+	Id          int          `json:"id"`
+	Login       string       `json:"login"`
+	Firstname   string       `json:"firstname"`
+	Lastname    string       `json:"lastname"`
+	Mail        string       `json:"mail"`
+	CreatedOn   string       `json:"created_on"`
+	LatLoginOn  string       `json:"last_login_on"`
+	Memberships []Membership `json:"memberships"`
 }
 
 func (c *client) Users() ([]User, error) {
