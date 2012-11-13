@@ -23,7 +23,7 @@ Provide Interfaces to redmine APIs.
 |Trackers           |        0%|
 |Enumerations       |      100%|
 |Issue Categories   |        0%|
-|Roles              |        0%|
+|Roles              |      100%|
 |Groups             |        0%|
 
 ## Godmine
