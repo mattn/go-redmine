@@ -21,7 +21,7 @@ Provide Interfaces to redmine APIs.
 |Attachments        |        0%|
 |Issue Statuses     |      100%|
 |Trackers           |        0%|
-|Enumerations       |        0%|
+|Enumerations       |      100%|
 |Issue Categories   |        0%|
 |Roles              |        0%|
 |Groups             |        0%|
