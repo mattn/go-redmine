@@ -28,7 +28,11 @@ var profile *string = flag.String("p", os.Getenv("GODMINE_ENV"), "profile")
 var conf config
 
 func fatal(format string, err error) {
-	fmt.Fprintf(os.Stderr, format, err)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, format, err)
+	} else {
+		fmt.Fprint(os.Stderr, format)
+	}
 	os.Exit(1)
 }
 
@@ -522,6 +526,51 @@ func listUsers() {
 	}
 }
 
+func showNews(id int) {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	news, err := c.News(id)
+	if err != nil {
+		fatal("Failed to show user: %s\n", err)
+	}
+
+	found := -1
+	for i, n := range news {
+		if n.Id == id {
+			found = i
+		}
+	}
+	if found != -1 {
+		fmt.Printf(`
+Id: %d
+Project: %s
+Title: %s
+Summary: %s
+CreatedOn: %s
+
+%s
+`[1:],
+			news[found].Id,
+			news[found].Project.Name,
+			news[found].Title,
+			news[found].Summary,
+			news[found].CreatedOn,
+			news[found].Description)
+	} else {
+		fatal("Failed to show news: not found\n", nil)
+	}
+}
+
+func listNews() {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	news, err := c.News(conf.Project)
+	if err != nil {
+		fatal("Failed to list users: %s\n", err)
+	}
+	for _, i := range news {
+		fmt.Printf("%4d: %s\n", i.Id, i.Title)
+	}
+}
+
 func usage() {
 	fmt.Println(`gotmine <command> <subcommand> [arguments]
 
@@ -759,6 +808,25 @@ func main() {
 			break
 		case "l", "list":
 			listUsers()
+			break
+		default:
+			usage()
+		}
+	case "n", "news":
+		switch flag.Arg(1) {
+		case "s", "show":
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
+				if err != nil {
+					fatal("Invalid project id: %s\n", err)
+				}
+				showNews(id)
+			} else {
+				usage()
+			}
+			break
+		case "l", "list":
+			listNews()
 			break
 		default:
 			usage()
