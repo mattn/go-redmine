@@ -32,7 +32,7 @@ Provide command line tool for redmine.
 
 ### Usage
 
-    gotmine <command> <subcommand> [arguments]
+    godmine <command> <subcommand> [arguments]
     
     Project Commands:
       add      a create project with text editor.

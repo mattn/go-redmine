@@ -572,7 +572,7 @@ func listNews() {
 }
 
 func usage() {
-	fmt.Println(`gotmine <command> <subcommand> [arguments]
+	fmt.Println(`godmine <command> <subcommand> [arguments]
 
 Project Commands:
   add      a create project with text editor.
