@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"flag"
-	"github.com/mattn/go-iconv"
 	"github.com/mattn/go-redmine"
 	"io/ioutil"
 	"math/rand"
@@ -633,16 +632,6 @@ User Commands:
              $ godmine u l
 `)
 	os.Exit(1)
-}
-
-func toUtf8(s string) string {
-	ic, err := iconv.Open("char", "UTF-8")
-	if err != nil {
-		return s
-	}
-	defer ic.Close()
-	ret, _ := ic.Conv(s)
-	return ret
 }
 
 func main() {
