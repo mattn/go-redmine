@@ -27,7 +27,7 @@ type IssueCategory struct {
 }
 
 func (c *client) IssueCategories(projectId int) ([]IssueCategory, error) {
-	res, err := http.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/issue_categories.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/issue_categories.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *client) IssueCategories(projectId int) ([]IssueCategory, error) {
 }
 
 func (c *client) IssueCategory(id int) (*IssueCategory, error) {
-	res, err := http.Get(c.endpoint + "/issue_categories/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issue_categories/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (c *client) CreateIssueCategory(issueCategory IssueCategory) (*IssueCategor
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *client) UpdateIssueCategory(issueCategory IssueCategory) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -156,7 +156,7 @@ func (c *client) DeleteIssueCategory(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

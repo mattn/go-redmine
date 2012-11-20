@@ -33,7 +33,7 @@ type TimeEntry struct {
 }
 
 func (c *client) TimeEntries(projectId int) ([]TimeEntry, error) {
-	res, err := http.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/time_entries.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/time_entries.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (c *client) TimeEntries(projectId int) ([]TimeEntry, error) {
 }
 
 func (c *client) TimeEntry(id int) (*TimeEntry, error) {
-	res, err := http.Get(c.endpoint + "/time_entries/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/time_entries/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *client) CreateTimeEntry(timeEntry TimeEntry) (*TimeEntry, error) {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (c *client) UpdateTimeEntry(timeEntry TimeEntry) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -162,7 +162,7 @@ func (c *client) DeleteTimeEntry(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

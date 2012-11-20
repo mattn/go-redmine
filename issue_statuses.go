@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ type IssueStatus struct {
 }
 
 func (c *client) IssueStatuses() ([]IssueStatus, error) {
-	res, err := http.Get(c.endpoint + "/issue_statuses.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issue_statuses.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}

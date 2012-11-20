@@ -30,7 +30,7 @@ type Project struct {
 }
 
 func (c *client) Project(id int) (*Project, error) {
-	res, err := http.Get(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *client) Project(id int) (*Project, error) {
 }
 
 func (c *client) Projects() ([]Project, error) {
-	res, err := http.Get(c.endpoint + "/projects.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *client) CreateProject(project Project) (*Project, error) {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *client) UpdateProject(project Project) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -153,7 +153,7 @@ func (c *client) DeleteProject(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

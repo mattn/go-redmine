@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strconv"
 	"strings"
 )
@@ -28,7 +27,7 @@ type User struct {
 }
 
 func (c *client) Users() ([]User, error) {
-	res, err := http.Get(c.endpoint + "/users.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/users.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,7 @@ func (c *client) Users() ([]User, error) {
 }
 
 func (c *client) User(id int) (*User, error) {
-	res, err := http.Get(c.endpoint + "/users/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/users/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
