@@ -208,3 +208,7 @@ func (c *client) DeleteIssue(id int) error {
 	}
 	return err
 }
+
+func (issue *Issue) GetTitle() string {
+	return issue.Tracker.Name + " #" + strconv.Itoa(issue.Id) + ": " + issue.Subject
+}
