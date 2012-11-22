@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"flag"
+	"fmt"
 	"github.com/mattn/go-redmine"
 	"io/ioutil"
 	"math/rand"
@@ -61,7 +61,7 @@ func run(argv []string) error {
 	return nil
 }
 
-func notesFromEditor() (string, error) {
+func notesFromEditor(issue *redmine.Issue) (string, error) {
 	file := ""
 	newf := fmt.Sprintf("%d.txt", rand.Int())
 	if runtime.GOOS == "windows" {
@@ -72,7 +72,8 @@ func notesFromEditor() (string, error) {
 	defer os.Remove(file)
 	editor := getEditor()
 
-	contents := "### Notes Here ###\n"
+	body := "### Notes Here ###\n"
+	contents := issue.GetTitle() + "\n" + body
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
@@ -84,9 +85,9 @@ func notesFromEditor() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	text := string(b)
+	text := strings.Join(strings.SplitN(string(b), "\n", 2)[1:], "\n")
 
-	if text == contents {
+	if text == body {
 		return "", errors.New("Canceled")
 	}
 	return text, nil
@@ -304,14 +305,15 @@ func closeIssue(id int) {
 }
 
 func notesIssue(id int) {
-	content, err := notesFromEditor()
-	if err != nil {
-		fatal("%s\n", err)
-	}
 	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	issue, err := c.Issue(id)
 	if err != nil {
 		fatal("Failed to update issue: %s\n", err)
+	}
+
+	content, err := notesFromEditor(issue)
+	if err != nil {
+		fatal("%s\n", err)
 	}
 	issue.Notes = content
 	issue.ProjectId = conf.Project
