@@ -89,6 +89,30 @@ func (c *client) Issue(id int) (*Issue, error) {
 	return &r.Issue, nil
 }
 
+func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
+	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r issuesResult
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return r.Issues, nil
+}
+
 func (c *client) Issues() ([]Issue, error) {
 	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey)
 	if err != nil {

@@ -21,9 +21,9 @@ type issueCategoryRequest struct {
 }
 
 type IssueCategory struct {
-	Id           int    `json:"id"`
-	Project      IdName `json:"project"`
-	Name         string `json:"name"`
+	Id      int    `json:"id"`
+	Project IdName `json:"project"`
+	Name    string `json:"name"`
 }
 
 func (c *client) IssueCategories(projectId int) ([]IssueCategory, error) {
