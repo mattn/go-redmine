@@ -29,7 +29,7 @@ type IssueRelation struct {
 }
 
 func (c *client) IssueRelations(issueId int) ([]IssueRelation, error) {
-	res, err := http.Get(c.endpoint + "/issue/" + strconv.Itoa(issueId) + "/relations.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issue/" + strconv.Itoa(issueId) + "/relations.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *client) IssueRelations(issueId int) ([]IssueRelation, error) {
 }
 
 func (c *client) IssueRelation(id int) (*IssueRelation, error) {
-	res, err := http.Get(c.endpoint + "/relations/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/relations/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (c *client) CreateIssueRelation(issueRelation IssueRelation) (*IssueRelatio
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *client) UpdateIssueRelation(issueRelation IssueRelation) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -158,7 +158,7 @@ func (c *client) DeleteIssueRelation(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ type IssuePriority struct {
 }
 
 func (c *client) IssuePriorities() ([]IssuePriority, error) {
-	res, err := http.Get(c.endpoint + "/enumerations/issue_priorities.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/enumerations/issue_priorities.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}

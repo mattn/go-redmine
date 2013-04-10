@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strconv"
 	"strings"
 )
@@ -22,7 +21,7 @@ type News struct {
 }
 
 func (c *client) News(projectId int) ([]News, error) {
-	res, err := http.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/news.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/news.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}

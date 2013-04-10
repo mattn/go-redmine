@@ -39,7 +39,7 @@ type Issue struct {
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/" + strconv.Itoa(projectId) + "/issues.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/" + strconv.Itoa(projectId) + "/issues.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (c *client) IssuesOf(projectId int) ([]Issue, error) {
 }
 
 func (c *client) Issue(id int) (*Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if res.StatusCode == 404 {
 		return nil, errors.New("Not Found")
 	}
@@ -90,7 +90,7 @@ func (c *client) Issue(id int) (*Issue, error) {
 }
 
 func (c *client) Issues() ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (c *client) CreateIssue(issue Issue) (*Issue, error) {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (c *client) UpdateIssue(issue Issue) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -189,7 +189,7 @@ func (c *client) DeleteIssue(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

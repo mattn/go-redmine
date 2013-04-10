@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strings"
 )
 
@@ -12,7 +11,7 @@ type rolesResult struct {
 }
 
 func (c *client) Roles() ([]IdName, error) {
-	res, err := http.Get(c.endpoint + "/roles.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/roles.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}

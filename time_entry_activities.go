@@ -3,7 +3,6 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ type TimeEntryActivity struct {
 }
 
 func (c *client) TimeEntryActivites() ([]TimeEntryActivity, error) {
-	res, err := http.Get(c.endpoint + "/enumerations/time_entry_activities.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/enumerations/time_entry_activities.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}

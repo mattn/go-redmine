@@ -29,7 +29,7 @@ type Membership struct {
 }
 
 func (c *client) Memberships(projectId int) ([]Membership, error) {
-	res, err := http.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/memberships.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/memberships.json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *client) Memberships(projectId int) ([]Membership, error) {
 }
 
 func (c *client) Membership(id int) (*Membership, error) {
-	res, err := http.Get(c.endpoint + "/memberships/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/memberships/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (c *client) CreateMembership(membership Membership) (*Membership, error) {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *client) UpdateMembership(membership Membership) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
@@ -158,7 +158,7 @@ func (c *client) DeleteMembership(id int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.Do(req)
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}

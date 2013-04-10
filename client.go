@@ -1,12 +1,15 @@
 package redmine
 
+import "net/http"
+
 type client struct {
 	endpoint string
 	apikey   string
+	*http.Client
 }
 
 func NewClient(endpoint, apikey string) *client {
-	return &client{endpoint, apikey}
+	return &client{endpoint, apikey, http.DefaultClient}
 }
 
 type errorsResult struct {
