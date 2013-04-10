@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -8,6 +9,7 @@ import (
 	"github.com/mattn/go-redmine"
 	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,6 +24,7 @@ type config struct {
 	Apikey   string `json:"apikey"`
 	Project  int    `json:"project"`
 	Editor   string `json:"editor"`
+	Insecure bool   `json:"insecure"`
 }
 
 var profile *string = flag.String("p", os.Getenv("GODMINE_ENV"), "profile")
@@ -644,6 +647,13 @@ func main() {
 		usage()
 	}
 	conf = getConfig()
+	if conf.Insecure {
+		http.DefaultClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
+		}
+	}
 
 	switch flag.Arg(0) {
 	case "i", "issue":
