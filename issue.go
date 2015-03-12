@@ -39,7 +39,7 @@ type Issue struct {
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/" + strconv.Itoa(projectId) + "/issues.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issues.json?project_id=" + strconv.Itoa(projectId) + "&key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
