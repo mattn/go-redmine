@@ -632,12 +632,7 @@ func editWikiPage(title string) error {
 	defer os.Remove(file)
 	editor := getEditor()
 
-	contents := page.Text
-	if contents == "" {
-		contents = "### Wiki Contents Here ###\n"
-	}
-
-	ioutil.WriteFile(file, []byte(contents), 0600)
+	ioutil.WriteFile(file, []byte(page.Text), 0600)
 
 	if err = run([]string{editor, file}); err != nil {
 		return err
