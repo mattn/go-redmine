@@ -576,6 +576,79 @@ func listNews() {
 	}
 }
 
+func showWikiPage(title string) {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	page, err := c.WikiPage(conf.Project, title)
+	if err != nil {
+		fatal("Failed to show user: %s\n", err)
+	}
+
+	fmt.Printf(`
+Title: %s
+Author: %s
+Version: %d
+CreatedOn: %s
+UpdatedOn: %s
+Comments: %s
+
+%s
+`[1:],
+		page.Title,
+		page.Author.Name,
+		page.Version,
+		page.CreatedOn,
+		page.UpdatedOn,
+		page.Comments,
+		page.Text)
+}
+
+func listWikiPages() {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	pages, err := c.WikiPages(conf.Project)
+	if err != nil {
+		fatal("Failed to list wiki pages: %s\n", err)
+	}
+	for _, page := range pages {
+		fmt.Printf("%s\n", page.Title)
+	}
+}
+
+func editWikiPage(title string) error {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	page, err := c.WikiPage(conf.Project, title)
+	if err != nil {
+		return fmt.Errorf("Failed to read wiki page for editing: %s\n", err)
+	}
+	file, err := ioutil.TempFile(os.TempDir(), "godmine")
+	if err != nil {
+		return err
+	}
+	if _, err := file.WriteString(page.Text); err != nil {
+		return fmt.Errorf("Failed to write temp file: %s\n", err)
+	}
+
+	editor := getEditor()
+	if err := run([]string{editor, file.Name()}); err != nil {
+		return err
+	}
+	file.Sync()
+	file.Seek(0, 0)
+	edited, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	edited_text := string(edited)
+	if edited_text == page.Text {
+		return nil
+	}
+	page.Text = edited_text
+	fmt.Println(page.Text)
+	if err := c.UpdateWikiPage(conf.Project, *page); err != nil {
+		return err
+	}
+	return nil
+}
+
 func usage() {
 	fmt.Println(`godmine <command> <subcommand> [arguments]
 
@@ -636,6 +709,16 @@ User Commands:
 
   list     l listing users.
              $ godmine u l
+
+Wiki Commands:
+  show     s show wiki page griven by title.
+             $ godmine w s home
+
+  list     l listing project's wiki pages.
+             $ godmine w l
+
+  edit     e edit wiki page griven by title with editor
+             $ godmine w e home
 `)
 	os.Exit(1)
 }
@@ -833,6 +916,37 @@ func main() {
 			break
 		default:
 			usage()
+		}
+	case "w", "wiki":
+		switch flag.Arg(1) {
+		case "s", "show":
+			if flag.NArg() == 3 {
+				title := flag.Arg(2)
+				showWikiPage(title)
+			} else {
+				usage()
+			}
+			break
+		case "l", "list":
+			if flag.NArg() == 2 {
+				listWikiPages()
+			} else {
+				usage()
+			}
+			break
+		case "e", "edit":
+			if flag.NArg() == 3 {
+				title := flag.Arg(2)
+				if err := editWikiPage(title); err != nil {
+					fatal("Failed editing wiki page: %s\n", err)
+				}
+			} else {
+				usage()
+			}
+			break
+		default:
+			usage()
+
 		}
 	default:
 		usage()
