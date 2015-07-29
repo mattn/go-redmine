@@ -586,7 +586,7 @@ func showWikiPage(title string) {
 	fmt.Printf(`
 Title: %s
 Author: %s
-Version: %d
+Version: %v
 CreatedOn: %s
 UpdatedOn: %s
 Comments: %s
@@ -617,34 +617,49 @@ func editWikiPage(title string) error {
 	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	page, err := c.WikiPage(conf.Project, title)
 	if err != nil {
-		return fmt.Errorf("Failed to read wiki page for editing: %s\n", err)
+		if err.Error() != "Not Found" {
+			return fmt.Errorf("Failed to read wiki page for editing: %s\n", err)
+		}
+		page = &redmine.WikiPage{Title: title}
 	}
-	file, err := ioutil.TempFile(os.TempDir(), "godmine")
-	if err != nil {
-		return err
+	file := ""
+	newf := fmt.Sprintf("%d.txt", rand.Int())
+	if runtime.GOOS == "windows" {
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", newf)
+	} else {
+		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
-	if _, err := file.WriteString(page.Text); err != nil {
-		return fmt.Errorf("Failed to write temp file: %s\n", err)
+	defer os.Remove(file)
+	editor := getEditor()
+
+	contents := page.Text
+	if contents == "" {
+		contents = "### Wiki Contents Here ###\n"
 	}
 
-	editor := getEditor()
-	if err := run([]string{editor, file.Name()}); err != nil {
+	ioutil.WriteFile(file, []byte(contents), 0600)
+
+	if err = run([]string{editor, file}); err != nil {
 		return err
 	}
-	file.Sync()
-	file.Seek(0, 0)
-	edited, err := ioutil.ReadAll(file)
+
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
-	edited_text := string(edited)
-	if edited_text == page.Text {
+	text := string(b)
+	if text == page.Text {
 		return nil
 	}
-	page.Text = edited_text
-	fmt.Println(page.Text)
-	if err := c.UpdateWikiPage(conf.Project, *page); err != nil {
-		return err
+	page.Text = text
+	if page.Version == nil {
+		if _, err := c.CreateWikiPage(conf.Project, *page); err != nil {
+			return err
+		}
+	} else {
+		if err := c.UpdateWikiPage(conf.Project, *page); err != nil {
+			return err
+		}
 	}
 	return nil
 }

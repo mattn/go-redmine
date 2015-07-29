@@ -21,14 +21,14 @@ type wikiPageRequest struct {
 }
 
 type WikiPage struct {
-	Title     string `json:"title"`
-	Parent    Parent `json:"parent"`
-	Text      string `json:"text"`
-	Version   int    `json:"version"`
-	Author    IdName `json:"author"`
-	Comments  string `json:"comments"`
-	CreatedOn string `json:"created_on"`
-	UpdatedOn string `json:"updated_on"`
+	Title     string      `json:"title"`
+	Parent    *Parent     `json:"parent,omitempty"`
+	Text      string      `json:"text"`
+	Version   interface{} `json:"version,omitempty"`
+	Author    *IdName     `json:"author,omitempty"`
+	Comments  string      `json:"comments"`
+	CreatedOn string      `json:"created_on,omitempty"`
+	UpdatedOn string      `json:"updated_on,omitempty"`
 }
 
 type Parent struct {
@@ -69,12 +69,12 @@ func (c *client) WikiPage(projectId int, title string) (*WikiPage, error) {
 }
 
 // WikiPageAtVersion fetches the wiki page with the given title at the given version.
-func (c *client) WikiPageAtVersion(projectId int, title string, version int) (*WikiPage, error) {
-	return c.getWikiPage(projectId, title+"/"+strconv.Itoa(version))
+func (c *client) WikiPageAtVersion(projectId int, title string, version string) (*WikiPage, error) {
+	return c.getWikiPage(projectId, title+"/"+version)
 }
 
 func (c *client) getWikiPage(projectId int, resource string) (*WikiPage, error) {
-	res, err := c.Get(c.endpoint + "projects/" + strconv.Itoa(projectId) + "/wiki/" + resource + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/wiki/" + resource + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
 	}
