@@ -31,7 +31,7 @@ type Issue struct {
 	Status      *IdName `json:"status"`
 	Priority    *IdName `json:"priority"`
 	Author      *IdName `json:"author"`
-	Assigned    *IdName `json:"assigned"`
+	Assigned    *IdName `json:"assigned_to"`
 	Notes       string  `json:"notes"`
 	StatusDate  string  `json:"status_date"`
 	CreatedOn   string  `json:"created_on"`
