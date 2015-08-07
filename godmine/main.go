@@ -334,8 +334,8 @@ func showIssue(id int) {
 		fatal("Failed to show issue: %s\n", err)
 	}
 	assigned := ""
-	if issue.Assigned != nil {
-		assigned = issue.Assigned.Name
+	if issue.AssignedTo != nil {
+		assigned = issue.AssignedTo.Name
 	}
 
 	fmt.Printf(`
