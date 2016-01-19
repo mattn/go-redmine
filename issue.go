@@ -36,6 +36,13 @@ type Issue struct {
 	StatusDate  string  `json:"status_date"`
 	CreatedOn   string  `json:"created_on"`
 	UpdatedOn   string  `json:"updated_on"`
+	CustomFields []*CustomField `json:"custom_fields"`
+}
+
+type CustomField struct {
+	Id      int     `json:"id"`
+	Name	string  `json:"name"`
+	Value	string  `json:"value"`
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
