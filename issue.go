@@ -21,28 +21,28 @@ type issuesResult struct {
 }
 
 type Issue struct {
-	Id          int     `json:"id"`
-	Subject     string  `json:"subject"`
-	Description string  `json:"description"`
-	ProjectId   int     `json:"project_id"`
-	Project     *IdName `json:"project"`
-	Tracker     *IdName `json:"tracker"`
-	StatusId    int     `json:"status_id"`
-	Status      *IdName `json:"status"`
-	Priority    *IdName `json:"priority"`
-	Author      *IdName `json:"author"`
-	AssignedTo  *IdName `json:"assigned_to"`
-	Notes       string  `json:"notes"`
-	StatusDate  string  `json:"status_date"`
-	CreatedOn   string  `json:"created_on"`
-	UpdatedOn   string  `json:"updated_on"`
-	CustomFields []*CustomField `json:"custom_fields"`
+	Id           int            `json:"id"`
+	Subject      string         `json:"subject"`
+	Description  string         `json:"description"`
+	ProjectId    int            `json:"project_id"`
+	Project      *IdName        `json:"project"`
+	Tracker      *IdName        `json:"tracker"`
+	StatusId     int            `json:"status_id"`
+	Status       *IdName        `json:"status"`
+	Priority     *IdName        `json:"priority"`
+	Author       *IdName        `json:"author"`
+	AssignedTo   *IdName        `json:"assigned_to"`
+	Notes        string         `json:"notes"`
+	StatusDate   string         `json:"status_date"`
+	CreatedOn    string         `json:"created_on"`
+	UpdatedOn    string         `json:"updated_on"`
+	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 }
 
 type CustomField struct {
-	Id      int     `json:"id"`
-	Name	string  `json:"name"`
-	Value	string  `json:"value"`
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
