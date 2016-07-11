@@ -29,6 +29,7 @@ type WikiPage struct {
 	Comments  string      `json:"comments"`
 	CreatedOn string      `json:"created_on,omitempty"`
 	UpdatedOn string      `json:"updated_on,omitempty"`
+	ParentID  int         `json:"parent_id"`
 }
 
 type Parent struct {
