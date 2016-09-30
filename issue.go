@@ -41,9 +41,10 @@ type Issue struct {
 }
 
 type CustomField struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Id       int         `json:"id"`
+	Name     string      `json:"name"`
+	Multiple bool        `json:"multiple"`
+	Value    interface{} `json:"value"`
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
