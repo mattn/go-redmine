@@ -27,7 +27,7 @@ type User struct {
 }
 
 func (c *client) Users() ([]User, error) {
-	res, err := c.Get(c.endpoint + "/users.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/users.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

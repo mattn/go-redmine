@@ -39,7 +39,7 @@ type Parent struct {
 // WikiPages fetches a list of all wiki pages of the given project.
 // The Text field of the listed pages is not fetch by this command and is thus empty.
 func (c *client) WikiPages(projectId int) ([]WikiPage, error) {
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/wiki/index.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/wiki/index.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

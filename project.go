@@ -54,7 +54,7 @@ func (c *client) Project(id int) (*Project, error) {
 }
 
 func (c *client) Projects() ([]Project, error) {
-	res, err := c.Get(c.endpoint + "/projects.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/projects.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
