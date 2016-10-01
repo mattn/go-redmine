@@ -18,7 +18,7 @@ type IssueStatus struct {
 }
 
 func (c *client) IssueStatuses() ([]IssueStatus, error) {
-	res, err := c.Get(c.endpoint + "/issue_statuses.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issue_statuses.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

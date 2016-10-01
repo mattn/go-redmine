@@ -41,13 +41,14 @@ type Issue struct {
 }
 
 type CustomField struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Id       int         `json:"id"`
+	Name     string      `json:"name"`
+	Multiple bool        `json:"multiple"`
+	Value    interface{} `json:"value"`
 }
 
 func (c *client) IssuesOf(projectId int) ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?project_id=" + strconv.Itoa(projectId) + "&key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issues.json?project_id=" + strconv.Itoa(projectId) + "&key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (c *client) Issue(id int) (*Issue, error) {
 }
 
 func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey)
+	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +123,7 @@ func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
 }
 
 func (c *client) Issues() ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
