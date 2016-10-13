@@ -41,6 +41,7 @@ type Issue struct {
 	UpdatedOn    string         `json:"updated_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 }
+
 type IssueFilter struct {
 	ProjectId    string
 	SubprojectId string
@@ -130,7 +131,8 @@ func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
 	}
 	return r.Issues, nil
 }
-func (c *client) IssuesByFilter(f IssueFilter) ([]Issue, error) {
+
+func (c *client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
 	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause() + getIssueFilterClause(f))
 	if err != nil {
 		return nil, err
@@ -278,22 +280,22 @@ func (issue *Issue) GetTitle() string {
 	return issue.Tracker.Name + " #" + strconv.Itoa(issue.Id) + ": " + issue.Subject
 }
 
-func getIssueFilterClause(filter IssueFilter) string {
+func getIssueFilterClause(filter *IssueFilter) string {
 	clause := ""
 	if filter.ProjectId != "" {
-		clause = clause + fmt.Sprintf("&project_id%v", filter.ProjectId)
+		clause = clause + fmt.Sprintf("&project_id=%v", filter.ProjectId)
 	}
 	if filter.SubprojectId != "" {
-		clause = clause + fmt.Sprintf("&subproject_id%v", filter.SubprojectId)
+		clause = clause + fmt.Sprintf("&subproject_id=%v", filter.SubprojectId)
 	}
 	if filter.TrackerId != "" {
-		clause = clause + fmt.Sprintf("&tracker_id%v", filter.TrackerId)
+		clause = clause + fmt.Sprintf("&tracker_id=%v", filter.TrackerId)
 	}
 	if filter.StatusId != "" {
-		clause = clause + fmt.Sprintf("&status_id%v", filter.StatusId)
+		clause = clause + fmt.Sprintf("&status_id=%v", filter.StatusId)
 	}
 	if filter.AssignedToId != "" {
-		clause = clause + fmt.Sprintf("&assigned_to_id%v", filter.AssignedToId)
+		clause = clause + fmt.Sprintf("&assigned_to_id=%v", filter.AssignedToId)
 	}
 
 	return clause
