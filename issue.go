@@ -281,6 +281,9 @@ func (issue *Issue) GetTitle() string {
 }
 
 func getIssueFilterClause(filter *IssueFilter) string {
+	if filter == nil {
+		return ""
+	}
 	clause := ""
 	if filter.ProjectId != "" {
 		clause = clause + fmt.Sprintf("&project_id=%v", filter.ProjectId)
