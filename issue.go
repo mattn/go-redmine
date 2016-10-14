@@ -3,6 +3,7 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,12 +33,21 @@ type Issue struct {
 	Status       *IdName        `json:"status"`
 	Priority     *IdName        `json:"priority"`
 	Author       *IdName        `json:"author"`
+	FixedVersion *IdName        `json:"fixed_version"`
 	AssignedTo   *IdName        `json:"assigned_to"`
 	Notes        string         `json:"notes"`
 	StatusDate   string         `json:"status_date"`
 	CreatedOn    string         `json:"created_on"`
 	UpdatedOn    string         `json:"updated_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
+}
+
+type IssueFilter struct {
+	ProjectId    string
+	SubprojectId string
+	TrackerId    string
+	StatusId     string
+	AssignedToId string
 }
 
 type CustomField struct {
@@ -100,6 +110,30 @@ func (c *client) Issue(id int) (*Issue, error) {
 
 func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
 	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey + c.getPaginationClause())
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r issuesResult
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return r.Issues, nil
+}
+
+func (c *client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
+	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause() + getIssueFilterClause(f))
 	if err != nil {
 		return nil, err
 	}
@@ -244,4 +278,28 @@ func (c *client) DeleteIssue(id int) error {
 
 func (issue *Issue) GetTitle() string {
 	return issue.Tracker.Name + " #" + strconv.Itoa(issue.Id) + ": " + issue.Subject
+}
+
+func getIssueFilterClause(filter *IssueFilter) string {
+	if filter == nil {
+		return ""
+	}
+	clause := ""
+	if filter.ProjectId != "" {
+		clause = clause + fmt.Sprintf("&project_id=%v", filter.ProjectId)
+	}
+	if filter.SubprojectId != "" {
+		clause = clause + fmt.Sprintf("&subproject_id=%v", filter.SubprojectId)
+	}
+	if filter.TrackerId != "" {
+		clause = clause + fmt.Sprintf("&tracker_id=%v", filter.TrackerId)
+	}
+	if filter.StatusId != "" {
+		clause = clause + fmt.Sprintf("&status_id=%v", filter.StatusId)
+	}
+	if filter.AssignedToId != "" {
+		clause = clause + fmt.Sprintf("&assigned_to_id=%v", filter.AssignedToId)
+	}
+
+	return clause
 }
