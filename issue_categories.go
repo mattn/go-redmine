@@ -9,7 +9,8 @@ import (
 )
 
 type issueCategoriesResult struct {
-	IssueCategories []IssueCategory `json:"categories"`
+	IssueCategories []IssueCategory `json:"issue_categories"`
+	TotalCount int `json:"total_count"`
 }
 
 type issueCategoryResult struct {
@@ -24,6 +25,7 @@ type IssueCategory struct {
 	Id      int    `json:"id"`
 	Project IdName `json:"project"`
 	Name    string `json:"name"`
+	AssignedTo IdName `json:"assigned_to"`
 }
 
 func (c *client) IssueCategories(projectId int) ([]IssueCategory, error) {
