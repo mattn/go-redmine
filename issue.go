@@ -31,6 +31,7 @@ type Issue struct {
 	Tracker      *IdName        `json:"tracker"`
 	StatusId     int            `json:"status_id"`
 	Status       *IdName        `json:"status"`
+	PriorityId   int            `json:"priority_id"`
 	Priority     *IdName        `json:"priority"`
 	Author       *IdName        `json:"author"`
 	FixedVersion *IdName        `json:"fixed_version"`
