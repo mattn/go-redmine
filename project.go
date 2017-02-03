@@ -26,7 +26,7 @@ type Project struct {
 	Identifier  string `json:"identifier"`
 	Description string `json:"description"`
 	CreatedOn   string `json:"created_on"`
-	UpdatedOn   string `json:updated_on`
+	UpdatedOn   string `json:"updated_on"`
 }
 
 func (c *Client) Project(id int) (*Project, error) {
