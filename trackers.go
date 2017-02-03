@@ -11,7 +11,7 @@ type trackersResult struct {
 	Trackers []IdName `json:"trackers"`
 }
 
-func (c *client) Trackers() ([]IdName, error) {
+func (c *Client) Trackers() ([]IdName, error) {
 	res, err := http.Get(c.endpoint + "/trackers.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err

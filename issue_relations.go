@@ -28,7 +28,7 @@ type IssueRelation struct {
 	Delay        string `json:"delay"`
 }
 
-func (c *client) IssueRelations(issueId int) ([]IssueRelation, error) {
+func (c *Client) IssueRelations(issueId int) ([]IssueRelation, error) {
 	res, err := c.Get(c.endpoint + "/issue/" + strconv.Itoa(issueId) + "/relations.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (c *client) IssueRelations(issueId int) ([]IssueRelation, error) {
 	return r.IssueRelations, nil
 }
 
-func (c *client) IssueRelation(id int) (*IssueRelation, error) {
+func (c *Client) IssueRelation(id int) (*IssueRelation, error) {
 	res, err := c.Get(c.endpoint + "/relations/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (c *client) IssueRelation(id int) (*IssueRelation, error) {
 	return &r.IssueRelation, nil
 }
 
-func (c *client) CreateIssueRelation(issueRelation IssueRelation) (*IssueRelation, error) {
+func (c *Client) CreateIssueRelation(issueRelation IssueRelation) (*IssueRelation, error) {
 	var ir issueRelationRequest
 	ir.IssueRelation = issueRelation
 	s, err := json.Marshal(ir)
@@ -117,7 +117,7 @@ func (c *client) CreateIssueRelation(issueRelation IssueRelation) (*IssueRelatio
 	return &r.IssueRelation, nil
 }
 
-func (c *client) UpdateIssueRelation(issueRelation IssueRelation) error {
+func (c *Client) UpdateIssueRelation(issueRelation IssueRelation) error {
 	var ir issueRelationRequest
 	ir.IssueRelation = issueRelation
 	s, err := json.Marshal(ir)
@@ -152,7 +152,7 @@ func (c *client) UpdateIssueRelation(issueRelation IssueRelation) error {
 	return err
 }
 
-func (c *client) DeleteIssueRelation(id int) error {
+func (c *Client) DeleteIssueRelation(id int) error {
 	req, err := http.NewRequest("DELETE", c.endpoint+"/relations/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
 	if err != nil {
 		return err

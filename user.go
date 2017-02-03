@@ -26,7 +26,7 @@ type User struct {
 	Memberships []Membership `json:"memberships"`
 }
 
-func (c *client) Users() ([]User, error) {
+func (c *Client) Users() ([]User, error) {
 	res, err := c.Get(c.endpoint + "/users.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *client) Users() ([]User, error) {
 	return r.Users, nil
 }
 
-func (c *client) User(id int) (*User, error) {
+func (c *Client) User(id int) (*User, error) {
 	res, err := c.Get(c.endpoint + "/users/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err

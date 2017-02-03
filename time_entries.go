@@ -32,7 +32,7 @@ type TimeEntry struct {
 	UpdatedOn string `json:"updated_on"`
 }
 
-func (c *client) TimeEntries(projectId int) ([]TimeEntry, error) {
+func (c *Client) TimeEntries(projectId int) ([]TimeEntry, error) {
 	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/time_entries.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (c *client) TimeEntries(projectId int) ([]TimeEntry, error) {
 	return r.TimeEntries, nil
 }
 
-func (c *client) TimeEntry(id int) (*TimeEntry, error) {
+func (c *Client) TimeEntry(id int) (*TimeEntry, error) {
 	res, err := c.Get(c.endpoint + "/time_entries/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (c *client) TimeEntry(id int) (*TimeEntry, error) {
 	return &r.TimeEntry, nil
 }
 
-func (c *client) CreateTimeEntry(timeEntry TimeEntry) (*TimeEntry, error) {
+func (c *Client) CreateTimeEntry(timeEntry TimeEntry) (*TimeEntry, error) {
 	var ir timeEntryRequest
 	ir.TimeEntry = timeEntry
 	s, err := json.Marshal(ir)
@@ -121,7 +121,7 @@ func (c *client) CreateTimeEntry(timeEntry TimeEntry) (*TimeEntry, error) {
 	return &r.TimeEntry, nil
 }
 
-func (c *client) UpdateTimeEntry(timeEntry TimeEntry) error {
+func (c *Client) UpdateTimeEntry(timeEntry TimeEntry) error {
 	var ir timeEntryRequest
 	ir.TimeEntry = timeEntry
 	s, err := json.Marshal(ir)
@@ -156,7 +156,7 @@ func (c *client) UpdateTimeEntry(timeEntry TimeEntry) error {
 	return err
 }
 
-func (c *client) DeleteTimeEntry(id int) error {
+func (c *Client) DeleteTimeEntry(id int) error {
 	req, err := http.NewRequest("DELETE", c.endpoint+"/time_entries/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
 	if err != nil {
 		return err

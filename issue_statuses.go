@@ -17,7 +17,7 @@ type IssueStatus struct {
 	IsClosed  bool   `json:"is_closed"`
 }
 
-func (c *client) IssueStatuses() ([]IssueStatus, error) {
+func (c *Client) IssueStatuses() ([]IssueStatus, error) {
 	res, err := c.Get(c.endpoint + "/issue_statuses.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err

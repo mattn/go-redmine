@@ -16,7 +16,7 @@ type IssuePriority struct {
 	IsDefault bool   `json:"is_default"`
 }
 
-func (c *client) IssuePriorities() ([]IssuePriority, error) {
+func (c *Client) IssuePriorities() ([]IssuePriority, error) {
 	res, err := c.Get(c.endpoint + "/enumerations/issue_priorities.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err

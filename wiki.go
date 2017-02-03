@@ -38,7 +38,7 @@ type Parent struct {
 
 // WikiPages fetches a list of all wiki pages of the given project.
 // The Text field of the listed pages is not fetch by this command and is thus empty.
-func (c *client) WikiPages(projectId int) ([]WikiPage, error) {
+func (c *Client) WikiPages(projectId int) ([]WikiPage, error) {
 	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/wiki/index.json?key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
@@ -65,16 +65,16 @@ func (c *client) WikiPages(projectId int) ([]WikiPage, error) {
 }
 
 // WikiPage fetches the wiki page with the given title.
-func (c *client) WikiPage(projectId int, title string) (*WikiPage, error) {
+func (c *Client) WikiPage(projectId int, title string) (*WikiPage, error) {
 	return c.getWikiPage(projectId, title)
 }
 
 // WikiPageAtVersion fetches the wiki page with the given title at the given version.
-func (c *client) WikiPageAtVersion(projectId int, title string, version string) (*WikiPage, error) {
+func (c *Client) WikiPageAtVersion(projectId int, title string, version string) (*WikiPage, error) {
 	return c.getWikiPage(projectId, title+"/"+version)
 }
 
-func (c *client) getWikiPage(projectId int, resource string) (*WikiPage, error) {
+func (c *Client) getWikiPage(projectId int, resource string) (*WikiPage, error) {
 	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/wiki/" + resource + ".json?key=" + c.apikey)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (c *client) getWikiPage(projectId int, resource string) (*WikiPage, error) 
 }
 
 // CreateWikiPage creates wiki page.
-func (c *client) CreateWikiPage(projectId int, wikiPage WikiPage) (*WikiPage, error) {
+func (c *Client) CreateWikiPage(projectId int, wikiPage WikiPage) (*WikiPage, error) {
 	var wpr wikiPageRequest
 	wpr.WikiPage = wikiPage
 	s, err := json.Marshal(wpr)
@@ -136,7 +136,7 @@ func (c *client) CreateWikiPage(projectId int, wikiPage WikiPage) (*WikiPage, er
 }
 
 // UpdateWikiPage updates the wiki page given by the Title field of wikiPage.
-func (c *client) UpdateWikiPage(projectId int, wikiPage WikiPage) error {
+func (c *Client) UpdateWikiPage(projectId int, wikiPage WikiPage) error {
 	var wpr wikiPageRequest
 	wpr.WikiPage = wikiPage
 	s, err := json.Marshal(wpr)
@@ -169,7 +169,7 @@ func (c *client) UpdateWikiPage(projectId int, wikiPage WikiPage) error {
 }
 
 // DeleteWikiPage deletes the wiki page given by its title irreversibly.
-func (c *client) DeleteWikiPage(projectId int, title string) error {
+func (c *Client) DeleteWikiPage(projectId int, title string) error {
 	req, err := http.NewRequest("DELETE", c.endpoint+"/projects/"+strconv.Itoa(projectId)+"/wiki/"+title+".json?key="+c.apikey, strings.NewReader(""))
 	if err != nil {
 		return err
