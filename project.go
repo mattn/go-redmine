@@ -25,7 +25,7 @@ type Project struct {
 	Name        string `json:"name"`
 	Identifier  string `json:"identifier"`
 	Description string `json:"description"`
-	CreatedOn   string `json:created_on`
+	CreatedOn   string `json:"created_on"`
 	UpdatedOn   string `json:updated_on`
 }
 
