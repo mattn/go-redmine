@@ -27,7 +27,7 @@ type TimeEntry struct {
 	User      IdName `json:"user"`
 	Activity  IdName `json:"activity"`
 	Hours     float32
-	SpentOn   string `json:"created_on"`
+	SpentOn   string `json:"spent_on"`
 	CreatedOn string `json:"created_on"`
 	UpdatedOn string `json:"updated_on"`
 }

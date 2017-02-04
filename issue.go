@@ -111,8 +111,8 @@ func (c *Client) Issue(id int) (*Issue, error) {
 	return &r.Issue, nil
 }
 
-func (c *Client) IssuesByQuery(query_id int) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey + c.getPaginationClause())
+func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
+	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(queryId) + "&key=" + c.apikey + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
