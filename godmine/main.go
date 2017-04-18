@@ -576,6 +576,42 @@ func listNews() {
 	}
 }
 
+func showVersion(id int) {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	version, err := c.Version(id)
+	if err != nil {
+		fatal("Failed to show version: %s\n", err)
+	}
+
+	fmt.Printf(`
+Id: %d
+Project: %s
+Name: %s
+Description: %s
+Status: %s
+DueDate: %s
+CreatedOn: %s
+`[1:],
+		version.Id,
+		version.Project.Name,
+		version.Name,
+		version.Description,
+		version.Status,
+		version.DueDate,
+		version.CreatedOn)
+}
+
+func listVersions(projectId int) {
+	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
+	versions, err := c.Versions(projectId)
+	if err != nil {
+		fatal("Failed to list versions: %s\n", err)
+	}
+	for _, i := range versions {
+		fmt.Printf("%4d: %s\n", i.Id, i.Name)
+	}
+}
+
 func showWikiPage(title string) {
 	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
 	page, err := c.WikiPage(conf.Project, title)
@@ -719,6 +755,13 @@ User Commands:
 
   list     l listing users.
              $ godmine u l
+
+Version Commands:
+  show     s show given version.
+             $ godmine v s 1
+
+  list     s listing versions of given project.
+             $ godmine v l 1
 
 Wiki Commands:
   show     s show wiki page griven by title.
@@ -927,6 +970,32 @@ func main() {
 		default:
 			usage()
 		}
+	case "v", "version":
+		switch flag.Arg(1) {
+		case "s", "show":
+			if flag.NArg() == 3 {
+				id, err := strconv.Atoi(flag.Arg(2))
+				if err != nil {
+					fatal("Invalid version id: %s\n", err)
+				}
+				showVersion(id)
+			} else {
+				usage()
+			}
+		case "l", "list":
+			if flag.NArg() == 3 {
+				projectId, err := strconv.Atoi(flag.Arg(2))
+				if err != nil {
+					fatal("Invalid project id: %s\n", err)
+				}
+				listVersions(projectId)
+			} else {
+				usage()
+			}
+		default:
+			usage()
+		}
+
 	case "w", "wiki":
 		switch flag.Arg(1) {
 		case "s", "show":
