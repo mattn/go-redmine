@@ -15,7 +15,7 @@ Provide Interfaces to redmine APIs.
 |Time Entries       |      100%|
 |News               |      100%|
 |Issue Relations    |      100%|
-|Versions           |        0%|
+|Versions           |      100%|
 |Wiki Pages         |      100%|
 |Queries            |        0%|
 |Attachments        |        0%|
