@@ -51,6 +51,7 @@ type IssueFilter struct {
 	TrackerId    string
 	StatusId     string
 	AssignedToId string
+	UpdatedOn    string
 }
 
 type CustomField struct {
@@ -302,6 +303,9 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 	if filter.AssignedToId != "" {
 		clause = clause + fmt.Sprintf("&assigned_to_id=%v", filter.AssignedToId)
+	}
+	if filter.UpdatedOn != "" {
+		clause = clause + fmt.Sprintf("&updated_on=%v", filter.UpdatedOn)
 	}
 
 	return clause
