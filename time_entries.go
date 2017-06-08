@@ -21,15 +21,53 @@ type timeEntryRequest struct {
 }
 
 type TimeEntry struct {
-	Id        int    `json:"id"`
-	Project   IdName `json:"project"`
-	Issue     Id     `json:"issue"`
-	User      IdName `json:"user"`
-	Activity  IdName `json:"activity"`
-	Hours     float32
-	SpentOn   string `json:"spent_on"`
-	CreatedOn string `json:"created_on"`
-	UpdatedOn string `json:"updated_on"`
+	Id           int    `json:"id"`
+	Project      IdName `json:"project"`
+	Issue        Id     `json:"issue"`
+	User         IdName `json:"user"`
+	Activity     IdName `json:"activity"`
+	Hours        float32
+	SpentOn      string         `json:"spent_on"`
+	CreatedOn    string         `json:"created_on"`
+	UpdatedOn    string         `json:"updated_on"`
+	CustomFields []*CustomField `json:"custom_fields,omitempty"`
+}
+
+// TimeEntriesWithFilter send query and return parsed result
+func (c *Client) TimeEntriesWithFilter(filter Filter) ([]TimeEntry, error) {
+	uri, err := c.URLWithFilter("/time_entries.json", filter)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-Redmine-API-Key", c.apikey)
+	res, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r timeEntriesResult
+	if res.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return r.TimeEntries, nil
 }
 
 func (c *Client) TimeEntries(projectId int) ([]TimeEntry, error) {
