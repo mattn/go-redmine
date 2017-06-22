@@ -130,14 +130,14 @@ func (c *Client) UpdateMembership(membership Membership) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
-	}
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode == 404 {
+		return errors.New("Not Found")
+	}
 	if res.StatusCode != 200 {
 		decoder := json.NewDecoder(res.Body)
 		var er errorsResult
@@ -159,13 +159,14 @@ func (c *Client) DeleteMembership(id int) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
-	}
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return errors.New("Not Found")
+	}
 
 	decoder := json.NewDecoder(res.Body)
 	if res.StatusCode != 200 {

@@ -88,13 +88,14 @@ func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
 
 func (c *Client) Issue(id int) (*Issue, error) {
 	res, err := c.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
-	if res.StatusCode == 404 {
-		return nil, errors.New("Not Found")
-	}
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
 
 	decoder := json.NewDecoder(res.Body)
 	var r issueRequest
@@ -233,14 +234,14 @@ func (c *Client) UpdateIssue(issue Issue) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
-	}
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode == 404 {
+		return errors.New("Not Found")
+	}
 	if res.StatusCode != 200 {
 		decoder := json.NewDecoder(res.Body)
 		var er errorsResult
@@ -262,13 +263,14 @@ func (c *Client) DeleteIssue(id int) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
-	}
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return errors.New("Not Found")
+	}
 
 	decoder := json.NewDecoder(res.Body)
 	if res.StatusCode != 200 {

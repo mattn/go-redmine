@@ -179,10 +179,11 @@ func (c *Client) DeleteWikiPage(projectId int, title string) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode == 404 {
 		return errors.New("Not Found")
 	}
-	defer res.Body.Close()
 
 	decoder := json.NewDecoder(res.Body)
 	if res.StatusCode != 200 {
