@@ -29,6 +29,8 @@ type Issue struct {
 	Project      *IdName        `json:"project"`
 	TrackerId    int            `json:"tracker_id"`
 	Tracker      *IdName        `json:"tracker"`
+	ParentId     int            `json:"parent_issue_id"`
+	Parent       *Id            `json:"parent"`
 	StatusId     int            `json:"status_id"`
 	Status       *IdName        `json:"status"`
 	PriorityId   int            `json:"priority_id"`
