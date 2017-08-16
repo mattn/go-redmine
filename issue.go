@@ -44,6 +44,7 @@ type Issue struct {
 	StatusDate   string         `json:"status_date"`
 	CreatedOn    string         `json:"created_on"`
 	UpdatedOn    string         `json:"updated_on"`
+	DueDate      string         `json:"due_date"`
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 }
