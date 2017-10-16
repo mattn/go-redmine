@@ -210,17 +210,7 @@ func getEditor() string {
 	return editor
 }
 func getConfig() config {
-	file := "settings.json"
-
-	if *profile != "" {
-		file = "settings." + *profile + ".json"
-	}
-
-	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("APPDATA"), "godmine", file)
-	} else {
-		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", file)
-	}
+	file := createConfigFileName()
 
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -695,6 +685,42 @@ func editWikiPage(title string) error {
 	return nil
 }
 
+func initConfigFile() error {
+	template := `{
+	"endpoint": "http://redmine.example.com",
+	"apikey": "YOUR-API-KEY",
+	"project": 1 // default project id
+}`
+
+	file := createConfigFileName()
+
+	return ioutil.WriteFile(file, []byte(template), 0600)
+}
+
+func editConfigFile() error {
+	file := createConfigFileName()
+
+	editor := getEditor()
+
+	return run([]string{editor, file})
+}
+
+func createConfigFileName() string {
+	file := "settings.json"
+
+	if *profile != "" {
+		file = "settings." + *profile + ".json"
+	}
+
+	if runtime.GOOS == "windows" {
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", file)
+	} else {
+		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", file)
+	}
+
+	return file
+}
+
 func usage() {
 	fmt.Println(`godmine <command> <subcommand> [arguments]
 
@@ -772,6 +798,17 @@ Wiki Commands:
 
   edit     e edit wiki page griven by title with editor
              $ godmine w e home
+
+Config Commands:
+  init     i initialize configuration file.
+             $ godmine c i
+
+  edit     e edit configuration file with editor
+             $ godmine c e
+
+ENVIRONMENT:
+
+  In case switching configuration file, set environment variable GODMINE_ENV.
 `)
 	os.Exit(1)
 }
@@ -782,6 +819,23 @@ func main() {
 	if flag.NArg() <= 1 {
 		usage()
 	}
+
+	// config command parse before load config file.
+	switch flag.Arg(0) {
+	case "c", "config":
+		switch flag.Arg(1) {
+		case "e", "edit":
+			editConfigFile()
+			break
+		case "i", "init":
+			initConfigFile()
+			break
+		default:
+			usage()
+		}
+		os.Exit(0)
+	}
+
 	conf = getConfig()
 	if conf.Insecure {
 		http.DefaultClient = &http.Client{
