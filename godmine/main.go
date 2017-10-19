@@ -685,16 +685,55 @@ func editWikiPage(title string) error {
 	return nil
 }
 
-func initConfigFile() error {
+func initConfigFile(endpoint string, apikey string, project string) error {
 	template := `{
-	"endpoint": "http://redmine.example.com",
-	"apikey": "YOUR-API-KEY",
-	"project": 1 // default project id
+	"endpoint": "%s",
+	"apikey": "%s",
+	"project": %s
 }`
+	content := fmt.Sprintf(template, endpoint, apikey,  project);
 
 	file := createConfigFileName()
+	dir := filepath.Dir(file)
 
-	return ioutil.WriteFile(file, []byte(template), 0600)
+	if  _, err := os.Stat(dir); err != nil {
+		os.MkdirAll(dir, 0755)
+	}
+
+	return ioutil.WriteFile(file, []byte(content), 0600)
+}
+
+func listConfigFile() error {
+	file := createConfigFileName()
+	dir := filepath.Dir(file)
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Println("Directory not exists: %s", dir)
+		return err
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Name())
+	}
+
+	return nil
+}
+
+func showConfigFile() error {
+	file := createConfigFileName()
+
+	fmt.Println(file)
+
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		fmt.Println("File not exists: %s", file)
+		return err
+	}
+
+	fmt.Println(string(content))
+
+	return nil
 }
 
 func editConfigFile() error {
@@ -828,7 +867,13 @@ func main() {
 			editConfigFile()
 			break
 		case "i", "init":
-			initConfigFile()
+			initConfigFile(flag.Arg(2), flag.Arg(3), flag.Arg(4))
+			break
+		case "l", "list":
+			listConfigFile()
+			break
+		case "s", "show":
+			showConfigFile()
 			break
 		default:
 			usage()
