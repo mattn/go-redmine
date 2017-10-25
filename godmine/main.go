@@ -691,12 +691,12 @@ func initConfigFile(endpoint string, apikey string, project string) error {
 	"apikey": "%s",
 	"project": %s
 }`
-	content := fmt.Sprintf(template, endpoint, apikey,  project);
+	content := fmt.Sprintf(template, endpoint, apikey, project)
 
 	file := createConfigFileName()
 	dir := filepath.Dir(file)
 
-	if  _, err := os.Stat(dir); err != nil {
+	if _, err := os.Stat(dir); err != nil {
 		os.MkdirAll(dir, 0755)
 	}
 
