@@ -840,14 +840,24 @@ Wiki Commands:
 
 Config Commands:
   init     i initialize configuration file.
-             $ godmine c i
+             $ godmine c i RedmineURL ApiKey ProjectID
 
   edit     e edit configuration file with editor
              $ godmine c e
 
-ENVIRONMENT:
+  list     l list configuration files
+             $ godmine c l
 
-  In case switching configuration file, set environment variable GODMINE_ENV.
+  show     s show configuration file
+             $ godmine c s
+
+ENVIRONMENT VARIABLES
+
+  GODMINE_ENV
+    This variable use for switching configuration filename.
+    Default configuration filename is 'settings.json'.
+    If you set GODMINE_ENV to 'mine'
+    , godmine use 'settings.mine.json' to configuration filename.
 `)
 	os.Exit(1)
 }
