@@ -697,7 +697,7 @@ func initConfigFile(endpoint string, apikey string, project string) error {
 	dir := filepath.Dir(file)
 
 	if _, err := os.Stat(dir); err != nil {
-		os.MkdirAll(dir, 0755)
+		os.MkdirAll(dir, 0700)
 	}
 
 	return ioutil.WriteFile(file, []byte(content), 0600)
