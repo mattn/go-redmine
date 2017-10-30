@@ -10,9 +10,11 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -685,55 +687,74 @@ func editWikiPage(title string) error {
 	return nil
 }
 
-func initConfigFile(endpoint string, apikey string, project string) error {
-	template := `{
-	"endpoint": "%s",
-	"apikey": "%s",
-	"project": %s
-}`
-	content := fmt.Sprintf(template, endpoint, apikey, project)
-
-	file := createConfigFileName()
-	dir := filepath.Dir(file)
-
-	if _, err := os.Stat(dir); err != nil {
-		os.MkdirAll(dir, 0700)
+func initConfigFile(endpoint string, apikey string, project string) {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		fatal("endpoint must be a URL: %s\n", err)
+	} else if (u.Scheme != "http" && u.Scheme != "https") || len(u.Host) == 0 {
+		fatal("%s\n", errors.New("endpoint must be a URL"))
+	}
+	if m, _ := regexp.MatchString("^[[:alnum:]]+$", apikey); !m {
+		fatal("%s\n", errors.New("apikey must be [0-9a-f] only"))
+	}
+	projectId, err := strconv.Atoi(project)
+	if err != nil {
+		fatal("Project id can not convert to integer: %s\n", err)
 	}
 
-	return ioutil.WriteFile(file, []byte(content), 0600)
+	filename := createConfigFileName()
+	dirname := filepath.Dir(filename)
+
+	if _, err := os.Open(dirname); os.IsNotExist(err) {
+		err := os.MkdirAll(dirname, 0700)
+		if err != nil {
+			fatal("Failed to create directory: %s\n", err)
+		}
+	}
+
+	c := config{}
+	c.Endpoint = endpoint
+	c.Apikey = apikey
+	c.Project = projectId
+
+	bytes, err := json.MarshalIndent(c, "", "\t")
+	if err != nil {
+		fatal("Failed to marshal configurations: %s\n", err)
+	}
+
+	ioutil.WriteFile(filename, bytes, 0600)
 }
 
-func listConfigFile() error {
-	file := createConfigFileName()
-	dir := filepath.Dir(file)
+func listConfigFile() {
+	filename := createConfigFileName()
+	dirname := filepath.Dir(filename)
 
-	files, err := ioutil.ReadDir(dir)
+	dir, err := os.Open(dirname)
 	if err != nil {
-		fmt.Println("Directory not exists: %s", dir)
-		return err
+		fatal("Failed to open directory: %s\n", err)
+	}
+
+	files, err := dir.Readdirnames(0)
+	if err != nil {
+		fatal("Failed to read directory: %s\n", err)
 	}
 
 	for _, file := range files {
-		fmt.Println(file.Name())
+		fmt.Println(file)
 	}
-
-	return nil
 }
 
-func showConfigFile() error {
+func showConfigFile() {
 	file := createConfigFileName()
 
 	fmt.Println(file)
 
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		fmt.Println("File not exists: %s", file)
-		return err
+		fatal("Failed to read file: %s\n", err)
 	}
 
 	fmt.Println(string(content))
-
-	return nil
 }
 
 func editConfigFile() error {
@@ -840,7 +861,7 @@ Wiki Commands:
 
 Config Commands:
   init     i initialize configuration file.
-             $ godmine c i RedmineURL ApiKey ProjectID
+             $ godmine c i endpoint apikey project
 
   edit     e edit configuration file with editor
              $ godmine c e
