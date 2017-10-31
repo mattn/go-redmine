@@ -10,9 +10,11 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -210,17 +212,7 @@ func getEditor() string {
 	return editor
 }
 func getConfig() config {
-	file := "settings.json"
-
-	if *profile != "" {
-		file = "settings." + *profile + ".json"
-	}
-
-	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("APPDATA"), "godmine", file)
-	} else {
-		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", file)
-	}
+	file := createConfigFileName()
 
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -695,6 +687,100 @@ func editWikiPage(title string) error {
 	return nil
 }
 
+func initConfigFile(endpoint string, apikey string, project string) {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		fatal("endpoint must be a URL: %s\n", err)
+	} else if (u.Scheme != "http" && u.Scheme != "https") || len(u.Host) == 0 {
+		fatal("%s\n", errors.New("endpoint must be a URL"))
+	}
+	if m, _ := regexp.MatchString("^[[:alnum:]]+$", apikey); !m {
+		fatal("%s\n", errors.New("apikey must be [0-9a-f] only"))
+	}
+	projectId, err := strconv.Atoi(project)
+	if err != nil {
+		fatal("Project id can not convert to integer: %s\n", err)
+	}
+
+	filename := createConfigFileName()
+	dirname := filepath.Dir(filename)
+
+	if _, err := os.Open(dirname); os.IsNotExist(err) {
+		err := os.MkdirAll(dirname, 0700)
+		if err != nil {
+			fatal("Failed to create directory: %s\n", err)
+		}
+	}
+
+	c := config{}
+	c.Endpoint = endpoint
+	c.Apikey = apikey
+	c.Project = projectId
+
+	bytes, err := json.MarshalIndent(c, "", "\t")
+	if err != nil {
+		fatal("Failed to marshal configurations: %s\n", err)
+	}
+
+	ioutil.WriteFile(filename, bytes, 0600)
+}
+
+func listConfigFile() {
+	filename := createConfigFileName()
+	dirname := filepath.Dir(filename)
+
+	dir, err := os.Open(dirname)
+	if err != nil {
+		fatal("Failed to open directory: %s\n", err)
+	}
+
+	files, err := dir.Readdirnames(0)
+	if err != nil {
+		fatal("Failed to read directory: %s\n", err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file)
+	}
+}
+
+func showConfigFile() {
+	file := createConfigFileName()
+
+	fmt.Println(file)
+
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		fatal("Failed to read file: %s\n", err)
+	}
+
+	fmt.Println(string(content))
+}
+
+func editConfigFile() error {
+	file := createConfigFileName()
+
+	editor := getEditor()
+
+	return run([]string{editor, file})
+}
+
+func createConfigFileName() string {
+	file := "settings.json"
+
+	if *profile != "" {
+		file = "settings." + *profile + ".json"
+	}
+
+	if runtime.GOOS == "windows" {
+		file = filepath.Join(os.Getenv("APPDATA"), "godmine", file)
+	} else {
+		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", file)
+	}
+
+	return file
+}
+
 func usage() {
 	fmt.Println(`godmine <command> <subcommand> [arguments]
 
@@ -772,6 +858,27 @@ Wiki Commands:
 
   edit     e edit wiki page griven by title with editor
              $ godmine w e home
+
+Config Commands:
+  init     i initialize configuration file.
+             $ godmine c i endpoint apikey project
+
+  edit     e edit configuration file with editor
+             $ godmine c e
+
+  list     l list configuration files
+             $ godmine c l
+
+  show     s show configuration file
+             $ godmine c s
+
+ENVIRONMENT VARIABLES
+
+  GODMINE_ENV
+    This variable use for switching configuration filename.
+    Default configuration filename is 'settings.json'.
+    If you set GODMINE_ENV to 'mine'
+    , godmine use 'settings.mine.json' to configuration filename.
 `)
 	os.Exit(1)
 }
@@ -782,6 +889,29 @@ func main() {
 	if flag.NArg() <= 1 {
 		usage()
 	}
+
+	// config command parse before load config file.
+	switch flag.Arg(0) {
+	case "c", "config":
+		switch flag.Arg(1) {
+		case "e", "edit":
+			editConfigFile()
+			break
+		case "i", "init":
+			initConfigFile(flag.Arg(2), flag.Arg(3), flag.Arg(4))
+			break
+		case "l", "list":
+			listConfigFile()
+			break
+		case "s", "show":
+			showConfigFile()
+			break
+		default:
+			usage()
+		}
+		os.Exit(0)
+	}
+
 	conf = getConfig()
 	if conf.Insecure {
 		http.DefaultClient = &http.Client{

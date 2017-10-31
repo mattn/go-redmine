@@ -98,6 +98,9 @@ Write following:
     	"project": 1 // default project id
     }
 
+If you want switching configuration file, you should use `GODMINE_ENV` environment variable.
+If you set `GODMINE_ENV` to *mine*, godmine use `settings.mine.json` to configuration file.
+
 # License
 
 MIT
