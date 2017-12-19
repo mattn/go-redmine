@@ -47,6 +47,7 @@ type Issue struct {
 	DueDate      string         `json:"due_date"`
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
+	Uploads      []*Upload      `json:"uploads"`
 }
 
 type IssueFilter struct {
