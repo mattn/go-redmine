@@ -21,12 +21,6 @@ type issuesResult struct {
 	Issues []Issue `json:"issues"`
 }
 
-type Upload struct {
-	Token       string `json:"token"`
-	Filename    string `json:"filename"`
-	ContentType string `json:"content_type"`
-}
-
 type Issue struct {
 	Id           int            `json:"id"`
 	Subject      string         `json:"subject"`
