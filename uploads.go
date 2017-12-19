@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+type uploadResponse struct {
+	Upload Upload `json:"upload"`
+}
+
 type Upload struct {
 	Token       string `json:"token"`
 	Filename    string `json:"filename"`
@@ -32,7 +36,7 @@ func (c *Client) Upload(filename string) (*Upload, error) {
 	defer res.Body.Close()
 
 	decoder := json.NewDecoder(res.Body)
-	var r Upload
+	var r uploadResponse
 	if res.StatusCode != 201 {
 		var er errorsResult
 		err = decoder.Decode(&er)
@@ -45,5 +49,5 @@ func (c *Client) Upload(filename string) (*Upload, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &r, nil
+	return &r.Upload, nil
 }
