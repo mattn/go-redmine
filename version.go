@@ -21,14 +21,15 @@ type versionsResult struct {
 }
 
 type Version struct {
-	Id          int    `json:"id"`
-	Project     IdName `json:"project"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Status      string `json:"status"`
-	DueDate     string `json:"due_date"`
-	CreatedOn   string `json:"created_on"`
-	UpdatedOn   string `json:"updated_on"`
+	Id           int            `json:"id"`
+	Project      IdName         `json:"project"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description"`
+	Status       string         `json:"status"`
+	DueDate      string         `json:"due_date"`
+	CreatedOn    string         `json:"created_on"`
+	UpdatedOn    string         `json:"updated_on"`
+	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 }
 
 func (c *Client) Version(id int) (*Version, error) {
