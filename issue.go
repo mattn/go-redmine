@@ -48,6 +48,7 @@ type Issue struct {
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 	Uploads      []*Upload      `json:"uploads"`
+	DoneRatio    float32        `json:"done_ratio"`
 }
 
 type IssueFilter struct {
@@ -57,6 +58,7 @@ type IssueFilter struct {
 	StatusId     string
 	AssignedToId string
 	UpdatedOn    string
+	ExtraFilters map[string]string
 }
 
 type CustomField struct {
@@ -142,8 +144,24 @@ func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
 	return r.Issues, nil
 }
 
+// IssuesByFilter filters issues applying the f criteria
 func (c *Client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause() + getIssueFilterClause(f))
+	req, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/issues.json?key=%s%s%s",
+			c.endpoint,
+			c.apikey,
+			c.getPaginationClause(),
+			getIssueFilterClause(f)),
+		nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Redmine-API-Key", c.apikey)
+
+	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +331,14 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 	if filter.UpdatedOn != "" {
 		clause = clause + fmt.Sprintf("&updated_on=%v", filter.UpdatedOn)
+	}
+
+	if filter.ExtraFilters != nil {
+		extraFilter := make([]string, 0)
+		for key, value := range filter.ExtraFilters {
+			extraFilter = append(extraFilter, fmt.Sprintf("%s=%s", key, value))
+		}
+		clause = clause + "&" + strings.Join(extraFilter[:], "&")
 	}
 
 	return clause
