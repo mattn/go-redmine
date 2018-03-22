@@ -22,6 +22,7 @@ type projectsResult struct {
 
 type Project struct {
 	Id           int            `json:"id"`
+	Parent       IdName         `json:"parent"`
 	Name         string         `json:"name"`
 	Identifier   string         `json:"identifier"`
 	Description  string         `json:"description"`
