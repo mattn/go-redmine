@@ -62,10 +62,11 @@ type IssueFilter struct {
 }
 
 type CustomField struct {
-	Id       int         `json:"id"`
-	Name     string      `json:"name"`
-	Multiple bool        `json:"multiple"`
-	Value    interface{} `json:"value"`
+	Id          int         `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Multiple    bool        `json:"multiple"`
+	Value       interface{} `json:"value"`
 }
 
 func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
