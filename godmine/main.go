@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/mattn/go-redmine"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -19,6 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mattn/go-redmine"
 )
 
 type config struct {
@@ -357,9 +358,9 @@ UpdatedOn: %s
 		issue.Description)
 }
 
-func listIssues() {
+func listIssues(filter *redmine.IssueFilter) {
 	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
-	issues, err := c.Issues()
+	issues, err := c.IssuesByFilter(filter)
 	if err != nil {
 		fatal("Failed to list issues: %s\n", err)
 	}
@@ -878,8 +879,7 @@ ENVIRONMENT VARIABLES
     This variable use for switching configuration filename.
     Default configuration filename is 'settings.json'.
     If you set GODMINE_ENV to 'mine'
-    , godmine use 'settings.mine.json' to configuration filename.
-`)
+    , godmine use 'settings.mine.json' to configuration filename.`)
 	os.Exit(1)
 }
 
@@ -990,7 +990,13 @@ func main() {
 			}
 			break
 		case "l", "list":
-			listIssues()
+			listIssues(nil)
+			break
+		case "m", "mine":
+			filter := &redmine.IssueFilter{
+				AssignedToId: "me",
+			}
+			listIssues(filter)
 			break
 		default:
 			usage()
