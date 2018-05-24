@@ -24,6 +24,20 @@ type issuesResult struct {
 	Limit      uint    `json:"limit"`
 }
 
+type JournalDetails struct {
+	Property string `json:"property"`
+	Name     string `json:"name"`
+	OldValue string `json:"old_value"`
+	NewValue string `json:"new_value"`
+}
+type Journal struct {
+	Id        int              `json:"id"`
+	User      *IdName          `json:"user"`
+	Notes     string           `json:"notes"`
+	CreatedOn string           `json:"created_on"`
+	Details   []JournalDetails `json:"details"`
+}
+
 type Issue struct {
 	Id           int            `json:"id"`
 	Subject      string         `json:"subject"`
@@ -51,6 +65,7 @@ type Issue struct {
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 	Uploads      []*Upload      `json:"uploads"`
+	Journals     []*Journal     `json:"journals"`
 }
 
 type IssueFilter struct {
