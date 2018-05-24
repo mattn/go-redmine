@@ -80,31 +80,7 @@ func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
 }
 
 func (c *Client) Issue(id int) (*Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode == 404 {
-		return nil, errors.New("Not Found")
-	}
-
-	decoder := json.NewDecoder(res.Body)
-	var r issueRequest
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return &r.Issue, nil
+	return getOneIssue(c, id, nil)
 }
 
 func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
@@ -261,6 +237,50 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 
 	return clause
+}
+
+func mapConcat(m map[string]string, delimiter string) string {
+	var args []string
+
+	for k, v := range m {
+		args = append(args, k+"="+v)
+	}
+
+	return strings.Join(args, delimiter)
+}
+
+func getOneIssue(c *Client, id int, args map[string]string) (*Issue, error) {
+	url := c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey
+
+	if args != nil {
+		url += "&" + mapConcat(args, "&")
+	}
+
+	res, err := c.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	var r issueRequest
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r.Issue, nil
 }
 
 func getIssue(c *Client, url string, offset int) (*issuesResult, error) {
