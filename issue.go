@@ -18,7 +18,10 @@ type issueResult struct {
 }
 
 type issuesResult struct {
-	Issues []Issue `json:"issues"`
+	Issues     []Issue `json:"issues"`
+	TotalCount uint    `json:"total_count"`
+	Offset     uint    `json:"offset"`
+	Limit      uint    `json:"limit"`
 }
 
 type Issue struct {
@@ -67,27 +70,13 @@ type CustomField struct {
 }
 
 func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?project_id=" + strconv.Itoa(projectId) + "&key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?project_id="+strconv.Itoa(projectId)+"&key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+
+	return issues, nil
 }
 
 func (c *Client) Issue(id int) (*Issue, error) {
@@ -119,75 +108,31 @@ func (c *Client) Issue(id int) (*Issue, error) {
 }
 
 func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(queryId) + "&key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?query_id="+strconv.Itoa(queryId)+"&key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+	return issues, nil
 }
 
 func (c *Client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause() + getIssueFilterClause(f))
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?key="+c.apikey+c.getPaginationClause()+getIssueFilterClause(f))
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+	return issues, nil
 }
 
 func (c *Client) Issues() ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+
+	return issues, nil
 }
 
 func (c *Client) CreateIssue(issue Issue) (*Issue, error) {
@@ -316,4 +261,51 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 
 	return clause
+}
+
+func getIssue(c *Client, url string, offset int) (*issuesResult, error) {
+	res, err := c.Get(c.endpoint + url + "&offset=" + strconv.Itoa(offset))
+
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r issuesResult
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func getIssues(c *Client, url string) ([]Issue, error) {
+	completed := false
+	var issues []Issue
+
+	for completed == false {
+		r, err := getIssue(c, url, len(issues))
+
+		if err != nil {
+			return nil, err
+		}
+
+		if r.TotalCount == uint(len(issues)) {
+			completed = true
+		}
+
+		issues = append(issues, r.Issues...)
+	}
+
+	return issues, nil
 }
