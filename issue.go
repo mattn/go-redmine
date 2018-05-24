@@ -18,7 +18,24 @@ type issueResult struct {
 }
 
 type issuesResult struct {
-	Issues []Issue `json:"issues"`
+	Issues     []Issue `json:"issues"`
+	TotalCount uint    `json:"total_count"`
+	Offset     uint    `json:"offset"`
+	Limit      uint    `json:"limit"`
+}
+
+type JournalDetails struct {
+	Property string `json:"property"`
+	Name     string `json:"name"`
+	OldValue string `json:"old_value"`
+	NewValue string `json:"new_value"`
+}
+type Journal struct {
+	Id        int              `json:"id"`
+	User      *IdName          `json:"user"`
+	Notes     string           `json:"notes"`
+	CreatedOn string           `json:"created_on"`
+	Details   []JournalDetails `json:"details"`
 }
 
 type Issue struct {
@@ -48,6 +65,7 @@ type Issue struct {
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 	Uploads      []*Upload      `json:"uploads"`
+	Journals     []*Journal     `json:"journals"`
 }
 
 type IssueFilter struct {
@@ -67,127 +85,49 @@ type CustomField struct {
 }
 
 func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?project_id=" + strconv.Itoa(projectId) + "&key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?project_id="+strconv.Itoa(projectId)+"&key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+
+	return issues, nil
 }
 
 func (c *Client) Issue(id int) (*Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	return getOneIssue(c, id, nil)
+}
 
-	if res.StatusCode == 404 {
-		return nil, errors.New("Not Found")
-	}
-
-	decoder := json.NewDecoder(res.Body)
-	var r issueRequest
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return &r.Issue, nil
+func (c *Client) IssueWithArgs(id int, args map[string]string) (*Issue, error) {
+	return getOneIssue(c, id, args)
 }
 
 func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(queryId) + "&key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?query_id="+strconv.Itoa(queryId)+"&key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+	return issues, nil
 }
 
 func (c *Client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
-	res, err := http.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause() + getIssueFilterClause(f))
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?key="+c.apikey+c.getPaginationClause()+getIssueFilterClause(f))
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+	return issues, nil
 }
 
 func (c *Client) Issues() ([]Issue, error) {
-	res, err := c.Get(c.endpoint + "/issues.json?key=" + c.apikey + c.getPaginationClause())
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	issues, err := getIssues(c, "/issues.json?key="+c.apikey+c.getPaginationClause())
 
-	decoder := json.NewDecoder(res.Body)
-	var r issuesResult
-	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
-	} else {
-		err = decoder.Decode(&r)
-	}
 	if err != nil {
 		return nil, err
 	}
-	return r.Issues, nil
+
+	return issues, nil
 }
 
 func (c *Client) CreateIssue(issue Issue) (*Issue, error) {
@@ -316,4 +256,95 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 
 	return clause
+}
+
+func mapConcat(m map[string]string, delimiter string) string {
+	var args []string
+
+	for k, v := range m {
+		args = append(args, k+"="+v)
+	}
+
+	return strings.Join(args, delimiter)
+}
+
+func getOneIssue(c *Client, id int, args map[string]string) (*Issue, error) {
+	url := c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey
+
+	if args != nil {
+		url += "&" + mapConcat(args, "&")
+	}
+
+	res, err := c.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	var r issueRequest
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r.Issue, nil
+}
+
+func getIssue(c *Client, url string, offset int) (*issuesResult, error) {
+	res, err := c.Get(c.endpoint + url + "&offset=" + strconv.Itoa(offset))
+
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r issuesResult
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func getIssues(c *Client, url string) ([]Issue, error) {
+	completed := false
+	var issues []Issue
+
+	for completed == false {
+		r, err := getIssue(c, url, len(issues))
+
+		if err != nil {
+			return nil, err
+		}
+
+		if r.TotalCount == uint(len(issues)) {
+			completed = true
+		}
+
+		issues = append(issues, r.Issues...)
+	}
+
+	return issues, nil
 }
