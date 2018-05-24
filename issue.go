@@ -83,6 +83,10 @@ func (c *Client) Issue(id int) (*Issue, error) {
 	return getOneIssue(c, id, nil)
 }
 
+func (c *Client) IssueWithArgs(id int, args map[string]string) (*Issue, error) {
+	return getOneIssue(c, id, args)
+}
+
 func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
 	issues, err := getIssues(c, "/issues.json?query_id="+strconv.Itoa(queryId)+"&key="+c.apikey+c.getPaginationClause())
 
