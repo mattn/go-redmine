@@ -66,6 +66,7 @@ type Issue struct {
 	ClosedOn     string         `json:"closed_on"`
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 	Uploads      []*Upload      `json:"uploads"`
+	DoneRatio    float32        `json:"done_ratio"`
 	Journals     []*Journal     `json:"journals"`
 }
 
@@ -76,13 +77,15 @@ type IssueFilter struct {
 	StatusId     string
 	AssignedToId string
 	UpdatedOn    string
+	ExtraFilters map[string]string
 }
 
 type CustomField struct {
-	Id       int         `json:"id"`
-	Name     string      `json:"name"`
-	Multiple bool        `json:"multiple"`
-	Value    interface{} `json:"value"`
+	Id          int         `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Multiple    bool        `json:"multiple"`
+	Value       interface{} `json:"value"`
 }
 
 func (c *Client) IssuesOf(projectId int) ([]Issue, error) {
@@ -112,9 +115,9 @@ func (c *Client) IssuesByQuery(queryId int) ([]Issue, error) {
 	return issues, nil
 }
 
+// IssuesByFilter filters issues applying the f criteria
 func (c *Client) IssuesByFilter(f *IssueFilter) ([]Issue, error) {
 	issues, err := getIssues(c, "/issues.json?key="+c.apikey+c.getPaginationClause()+getIssueFilterClause(f))
-
 	if err != nil {
 		return nil, err
 	}
@@ -280,6 +283,14 @@ func getIssueFilterClause(filter *IssueFilter) string {
 	}
 	if filter.UpdatedOn != "" {
 		clause = clause + fmt.Sprintf("&updated_on=%v", filter.UpdatedOn)
+	}
+
+	if filter.ExtraFilters != nil {
+		extraFilter := make([]string, 0)
+		for key, value := range filter.ExtraFilters {
+			extraFilter = append(extraFilter, fmt.Sprintf("%s=%s", key, value))
+		}
+		clause = clause + "&" + strings.Join(extraFilter[:], "&")
 	}
 
 	return clause
