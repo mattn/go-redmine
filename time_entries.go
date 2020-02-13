@@ -21,12 +21,13 @@ type timeEntryRequest struct {
 }
 
 type TimeEntry struct {
-	Id           int    `json:"id"`
-	Project      IdName `json:"project"`
-	Issue        Id     `json:"issue"`
-	User         IdName `json:"user"`
-	Activity     IdName `json:"activity"`
-	Hours        float32
+	Id           int            `json:"id"`
+	Project      IdName         `json:"project"`
+	Issue        Id             `json:"issue"`
+	User         IdName         `json:"user"`
+	Activity     IdName         `json:"activity"`
+	Hours        float32        `json:"hours"`
+	Comments     string         `json:"comments"`
 	SpentOn      string         `json:"spent_on"`
 	CreatedOn    string         `json:"created_on"`
 	UpdatedOn    string         `json:"updated_on"`
