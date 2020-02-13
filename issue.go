@@ -232,6 +232,32 @@ func (issue *Issue) GetTitle() string {
 	return issue.Tracker.Name + " #" + strconv.Itoa(issue.Id) + ": " + issue.Subject
 }
 
+// MarshalJSON marshals issue to JSON.
+// This overrides the default MarshalJSON() to reset parent issue.
+func (issue Issue) MarshalJSON() ([]byte, error) {
+	type Issue2 Issue
+
+	// To reset parent issue, set empty string to "parent_issue_id"
+	var parentIssueID *string
+	if issue.Parent == nil {
+		// reset parent issue
+		id := ""
+		parentIssueID = &id
+	} else if issue.ParentId > 0 {
+		// set parent issue
+		id := strconv.Itoa(issue.ParentId)
+		parentIssueID = &id
+	}
+
+	return json.Marshal(&struct {
+		Issue2
+		ParentId *string `json:"parent_issue_id,omitempty"`
+	}{
+		Issue2:   Issue2(issue),
+		ParentId: parentIssueID,
+	})
+}
+
 func getIssueFilterClause(filter *IssueFilter) string {
 	if filter == nil {
 		return ""
