@@ -7,7 +7,7 @@ GOBIN ?= $(shell go env GOPATH)/bin
 export GO111MODULE=on
 
 .PHONY: all
-all: clean build
+all: build
 
 .PHONY: build
 build:
@@ -22,7 +22,7 @@ show-version: $(GOBIN)/gobump
 	@gobump show -r $(VERSION_PATH)
 
 $(GOBIN)/gobump:
-	@cd && go get github.com/motemen/gobump/cmd/gobump
+	@cd && go get github.com/x-motemen/gobump/cmd/gobump
 
 .PHONY: cross
 cross: $(GOBIN)/goxz
