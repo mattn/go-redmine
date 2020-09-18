@@ -26,7 +26,7 @@ const name = "godmine"
 
 const version = "0.0.3"
 
-const revision = "HEAD"
+var revision = "HEAD"
 
 type config struct {
 	Endpoint string `json:"endpoint"`
