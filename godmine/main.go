@@ -992,6 +992,12 @@ func main() {
 		case "l", "list":
 			listIssues(nil)
 			break
+		case "p", "project":
+			filter := &redmine.IssueFilter{
+				ProjectId: fmt.Sprint(conf.Project),
+			}
+			listIssues(filter)
+			break
 		case "m", "mine":
 			filter := &redmine.IssueFilter{
 				AssignedToId: "me",
