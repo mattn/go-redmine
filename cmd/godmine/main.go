@@ -22,6 +22,12 @@ import (
 	"github.com/mattn/go-redmine"
 )
 
+const name = "godmine"
+
+const version = "0.0.1"
+
+const revision = "HEAD"
+
 type config struct {
 	Endpoint string `json:"endpoint"`
 	Apikey   string `json:"apikey"`
@@ -30,8 +36,11 @@ type config struct {
 	Insecure bool   `json:"insecure"`
 }
 
-var profile *string = flag.String("p", os.Getenv("GODMINE_ENV"), "profile")
-var conf config
+var (
+	conf         config
+	profile      = flag.String("p", os.Getenv("GODMINE_ENV"), "profile")
+	printVersion = flag.Bool("version", false, "print version")
+)
 
 func fatal(format string, err error) {
 	if err != nil {
@@ -571,7 +580,7 @@ func listNews() {
 
 func showVersion(id int) {
 	c := redmine.NewClient(conf.Endpoint, conf.Apikey)
-	version, err := c.Version(id)
+	ver, err := c.Version(id)
 	if err != nil {
 		fatal("Failed to show version: %s\n", err)
 	}
@@ -585,13 +594,13 @@ Status: %s
 DueDate: %s
 CreatedOn: %s
 `[1:],
-		version.Id,
-		version.Project.Name,
-		version.Name,
-		version.Description,
-		version.Status,
-		version.DueDate,
-		version.CreatedOn)
+		ver.Id,
+		ver.Project.Name,
+		ver.Name,
+		ver.Description,
+		ver.Status,
+		ver.DueDate,
+		ver.CreatedOn)
 }
 
 func listVersions(projectId int) {
@@ -766,7 +775,7 @@ func editConfigFile() error {
 	return run([]string{editor, file})
 }
 
-func createConfigFileName() string {
+func createConfigFileName(profile string) string {
 	file := "settings.json"
 
 	if *profile != "" {
@@ -884,11 +893,17 @@ ENVIRONMENT VARIABLES
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
+
+	if *printVersion {
+		fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
+		return
+	}
 	if flag.NArg() <= 1 {
 		usage()
 	}
+
+	rand.Seed(time.Now().UnixNano())
 
 	// config command parse before load config file.
 	switch flag.Arg(0) {
@@ -912,7 +927,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	conf = getConfig()
+	conf = getConfig(profile)
 	if conf.Insecure {
 		http.DefaultClient = &http.Client{
 			Transport: &http.Transport{
