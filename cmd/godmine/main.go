@@ -775,7 +775,7 @@ func editConfigFile() error {
 	return run([]string{editor, file})
 }
 
-func createConfigFileName(profile string) string {
+func createConfigFileName() string {
 	file := "settings.json"
 
 	if *profile != "" {
@@ -927,7 +927,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	conf = getConfig(profile)
+	conf = getConfig()
 	if conf.Insecure {
 		http.DefaultClient = &http.Client{
 			Transport: &http.Transport{
