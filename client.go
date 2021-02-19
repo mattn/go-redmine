@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Client struct {
@@ -20,6 +21,21 @@ var DefaultOffset int = -1 //"-1" means "No setting"
 
 func NewClient(endpoint, apikey string) *Client {
 	return &Client{endpoint, apikey, http.DefaultClient, DefaultLimit, DefaultOffset}
+}
+
+func (c *Client) apiKeyParameter() string {
+	return "key=" + c.apikey
+}
+
+func (c *Client) concatParameters(requestParameters ...string) string {
+	cleanedParams := []string{}
+	for _, param := range requestParameters {
+		if param != "" {
+			cleanedParams = append(cleanedParams, param)
+		}
+	}
+
+	return strings.Join(cleanedParams, "&")
 }
 
 // URLWithFilter return string url by concat endpoint, path and filter

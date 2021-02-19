@@ -445,7 +445,7 @@ UpdatedOn: %s
 
 %s
 `[1:],
-		project.Id,
+		project.ID,
 		project.Name,
 		project.Identifier,
 		project.CreatedOn,
@@ -460,7 +460,7 @@ func listProjects() {
 		fatal("Failed to list projects: %s\n", err)
 	}
 	for _, i := range issues {
-		fmt.Printf("%4d: %s\n", i.Id, i.Name)
+		fmt.Printf("%4d: %s\n", i.ID, i.Name)
 	}
 }
 
