@@ -69,7 +69,7 @@ type Project struct {
 	EnabledModuleNames []string `json:"enabled_module_names"`
 	// IssueCategories
 	// since Redmine 2.6.0
-	IssueCategories issueCategoriesResult `json:"issue_categories"`
+	IssueCategories IssueCategoriesResult `json:"issue_categories"`
 	// CustomFields.
 	// the Redmine API description is unclear about this field: Docu mentions issue_custom_field_ids only for
 	// project creation.

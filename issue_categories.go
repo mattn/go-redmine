@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type issueCategoriesResult struct {
+type IssueCategoriesResult struct {
 	IssueCategories []IssueCategory `json:"issue_categories"`
 	TotalCount      int             `json:"total_count"`
 }
@@ -36,7 +36,7 @@ func (c *Client) IssueCategories(projectId int) ([]IssueCategory, error) {
 	defer res.Body.Close()
 
 	decoder := json.NewDecoder(res.Body)
-	var r issueCategoriesResult
+	var r IssueCategoriesResult
 	if res.StatusCode == 404 {
 		return nil, errors.New("Not Found")
 	}
