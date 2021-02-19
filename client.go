@@ -16,8 +16,10 @@ type Client struct {
 	*http.Client
 }
 
-var DefaultLimit int = -1  // "-1" means "No setting"
-var DefaultOffset int = -1 //"-1" means "No setting"
+const NoSetting = -1
+
+var DefaultLimit int = NoSetting
+var DefaultOffset int = NoSetting
 
 func NewClient(endpoint, apikey string) *Client {
 	return &Client{
