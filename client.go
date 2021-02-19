@@ -11,16 +11,22 @@ import (
 type Client struct {
 	endpoint string
 	apikey   string
+	Limit    int
+	Offset   int
 	*http.Client
-	Limit  int
-	Offset int
 }
 
 var DefaultLimit int = -1  // "-1" means "No setting"
 var DefaultOffset int = -1 //"-1" means "No setting"
 
 func NewClient(endpoint, apikey string) *Client {
-	return &Client{endpoint, apikey, http.DefaultClient, DefaultLimit, DefaultOffset}
+	return &Client{
+		endpoint: endpoint,
+		apikey:   apikey,
+		Limit:    DefaultLimit,
+		Offset:   DefaultOffset,
+		Client:   http.DefaultClient,
+	}
 }
 
 func (c *Client) apiKeyParameter() string {
