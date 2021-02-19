@@ -73,7 +73,7 @@ type Project struct {
 	// CustomFields.
 	// the Redmine API description is unclear about this field: Docu mentions issue_custom_field_ids only for
 	// project creation.
-	CustomFields []*CustomField `json:"issue_custom_field_ids,omitempty"`
+	CustomFields []int `json:"issue_custom_field_ids,omitempty"`
 	// CreatedOn contains a timestamp of when the project was created.
 	CreatedOn string `json:"created_on"`
 	// UpdatedOn contains the timestamp of when the project was last updated.
