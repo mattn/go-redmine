@@ -60,10 +60,10 @@ func (c *Client) URLWithFilter(path string, f Filter) (string, error) {
 func (c *Client) getPaginationClause() string {
 	clause := ""
 	if c.Limit > -1 {
-		clause = clause + fmt.Sprintf("&limit=%v", c.Limit)
+		clause = clause + fmt.Sprintf("&limit=%d", c.Limit)
 	}
 	if c.Offset > -1 {
-		clause = clause + fmt.Sprintf("&offset=%v", c.Offset)
+		clause = clause + fmt.Sprintf("&offset=%d", c.Offset)
 	}
 	return clause
 }
