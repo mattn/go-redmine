@@ -246,7 +246,7 @@ func (c *Client) UpdateProject(project Project) error {
 	if res.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("could not update project (id %d) because it was not found", project.Id)
 	}
-	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK}) {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		decoder := json.NewDecoder(res.Body)
 		var er errorsResult
 		err = decoder.Decode(&er)
