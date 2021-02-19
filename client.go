@@ -39,7 +39,7 @@ func (c *Client) concatParameters(requestParameters ...string) string {
 }
 
 // URLWithFilter return string url by concat endpoint, path and filter
-// err != nil when endpoin can not parse
+// err != nil when endpoint can not parse
 func (c *Client) URLWithFilter(path string, f Filter) (string, error) {
 	var fullURL *url.URL
 	fullURL, err := url.Parse(c.endpoint)
