@@ -32,6 +32,24 @@ type projectsResult struct {
 	Projects []Project `json:"projects"`
 }
 
+type TrackerResult struct {
+	Tracker []Tracker `json:""`
+}
+
+type Tracker struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type EnabledModulsResult struct {
+	Tracker []EnabledModul `json:"enabled_modules"`
+}
+
+type EnabledModul struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 // Project contains a Redmine API project object according Redmine 4.1 REST API.
 //
 // See also: https://www.redmine.org/projects/redmine/wiki/Rest_api
@@ -61,15 +79,17 @@ type Project struct {
 	// InheritMembers determines whether this project inherits members from a parent project. If set to true (and being a
 	// nested project) all members from the parent project will apply also to this project.
 	InheritMembers bool `json:"inherit_members"`
-	// TrackerIDs
+	// Trackers determine which ticket trackers are used for this project.
+	//
 	// since Redmine 2.6.0
-	TrackerIDs []int `json:"tracker_ids"`
-	// EnabledModuleNames
+	Trackers []Tracker `json:"trackers"`
+	// EnabledModules determine the activated modules for this project.
+	//
 	// since Redmine 2.6.0
-	EnabledModuleNames []string `json:"enabled_module_names"`
+	EnabledModules []EnabledModul `json:"enabled_modules"`
 	// IssueCategories
 	// since Redmine 2.6.0
-	IssueCategories IssueCategoriesResult `json:"issue_categories"`
+	IssueCategories []IssueCategory `json:"issue_categories"`
 	// CustomFields.
 	// the Redmine API description is unclear about this field: Docu mentions issue_custom_field_ids only for
 	// project creation.
