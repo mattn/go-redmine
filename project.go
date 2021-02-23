@@ -32,24 +32,6 @@ type projectsResult struct {
 	Projects []Project `json:"projects"`
 }
 
-type TrackerResult struct {
-	Tracker []Tracker `json:""`
-}
-
-type Tracker struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type EnabledModulsResult struct {
-	Tracker []EnabledModul `json:"enabled_modules"`
-}
-
-type EnabledModul struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 // Project contains a Redmine API project object according Redmine 4.1 REST API.
 //
 // See also: https://www.redmine.org/projects/redmine/wiki/Rest_api
@@ -79,21 +61,6 @@ type Project struct {
 	// InheritMembers determines whether this project inherits members from a parent project. If set to true (and being a
 	// nested project) all members from the parent project will apply also to this project.
 	InheritMembers bool `json:"inherit_members"`
-	// Trackers determine which ticket trackers are used for this project.
-	//
-	// since Redmine 2.6.0
-	Trackers []Tracker `json:"trackers"`
-	// EnabledModules determine the activated modules for this project.
-	//
-	// since Redmine 2.6.0
-	EnabledModules []EnabledModul `json:"enabled_modules"`
-	// IssueCategories
-	// since Redmine 2.6.0
-	IssueCategories []IssueCategory `json:"issue_categories"`
-	// CustomFields.
-	// the Redmine API description is unclear about this field: Docu mentions issue_custom_field_ids only for
-	// project creation.
-	CustomFields []int `json:"issue_custom_field_ids,omitempty"`
 	// CreatedOn contains a timestamp of when the project was created.
 	CreatedOn string `json:"created_on"`
 	// UpdatedOn contains the timestamp of when the project was last updated.
@@ -102,23 +69,7 @@ type Project struct {
 
 // Project returns a single project without additional fields.
 func (c *Client) Project(id int) (*Project, error) {
-	return c.ProjectWithAdditionalFields(id)
-}
-
-// ProjectWithAdditionalFields returns a single project along with additional fields selected by the caller. The given
-// additional fields can be nil, empty or a set of the currently supported additional project fields.
-//
-// Example to include trackers:
-//  project, err := client.ProjectWithAdditionalFields(42, redmine, ProjectAdditionalFieldTrackers, ProjectAdditionalFieldEnabledModules)
-func (c *Client) ProjectWithAdditionalFields(id int, additionalFields ...string) (*Project, error) {
-	err := validateAdditionalFields(additionalFields...)
-	if err != nil {
-		return nil, err
-	}
-	additionalFieldsParameter := additionalFieldsParam(additionalFieldsParam())
-	parameters := c.concatParameters(c.apiKeyParameter(), additionalFieldsParameter)
-
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?" + parameters)
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?" + c.apiKeyParameter())
 	if err != nil {
 		return nil, err
 	}
@@ -141,26 +92,6 @@ func (c *Client) ProjectWithAdditionalFields(id int, additionalFields ...string)
 	return &r.Project, nil
 }
 
-// validateAdditionalFields checks for invalid field names. Repeated fields will be ignored because Redmine handles
-// multiple instances of the same field without error.
-func validateAdditionalFields(additionalFields ...string) error {
-	for _, field := range additionalFields {
-		if field == ProjectAdditionalFieldTrackers ||
-			field == ProjectAdditionalFieldIssueCategories ||
-			field == ProjectAdditionalFieldEnabledModules ||
-			field == ProjectAdditionalFieldTimeEntryActivities {
-			continue
-		}
-		return fmt.Errorf("unsupported additional project field %s found", field)
-	}
-
-	return nil
-}
-
-func additionalFieldsParam(additionalFields ...string) string {
-	return strings.Join(additionalFields, ",")
-}
-
 func isHTTPStatusSuccessful(httpStatus int, acceptedStatuses []int) bool {
 	for _, acceptedStatus := range acceptedStatuses {
 		if httpStatus == acceptedStatus {
@@ -172,17 +103,7 @@ func isHTTPStatusSuccessful(httpStatus int, acceptedStatuses []int) bool {
 }
 
 func (c *Client) Projects() ([]Project, error) {
-	return c.ProjectsWithAdditionalFields()
-}
-
-func (c *Client) ProjectsWithAdditionalFields(additionalFields ...string) ([]Project, error) {
-	err := validateAdditionalFields(additionalFields...)
-	if err != nil {
-		return nil, err
-	}
-	additionalFieldsParameter := additionalFieldsParam(additionalFieldsParam())
-
-	parameters := c.concatParameters(c.apiKeyParameter(), additionalFieldsParameter, c.getPaginationClause())
+	parameters := c.concatParameters(c.apiKeyParameter(), c.getPaginationClause())
 	res, err := c.Get(c.endpoint + "/projects.json?" + parameters)
 	if err != nil {
 		return nil, err
