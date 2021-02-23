@@ -154,7 +154,7 @@ func (c *Client) CreateIssue(issue Issue) (*Issue, error) {
 
 	decoder := json.NewDecoder(res.Body)
 	var r issueRequest
-	if res.StatusCode != 201 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusCreated}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
 		if err == nil {
@@ -187,10 +187,10 @@ func (c *Client) UpdateIssue(issue Issue) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 404 {
+	if res.StatusCode == http.StatusNotFound {
 		return errors.New("Not Found")
 	}
-	if res.StatusCode != 200 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		decoder := json.NewDecoder(res.Body)
 		var er errorsResult
 		err = decoder.Decode(&er)
@@ -216,12 +216,12 @@ func (c *Client) DeleteIssue(id int) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 404 {
+	if res.StatusCode == http.StatusNotFound {
 		return errors.New("Not Found")
 	}
 
 	decoder := json.NewDecoder(res.Body)
-	if res.StatusCode != 200 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
 		if err == nil {
