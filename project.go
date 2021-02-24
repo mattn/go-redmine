@@ -219,7 +219,7 @@ func (c *Client) DeleteProject(id int) error {
 	}
 
 	decoder := json.NewDecoder(res.Body)
-	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK}) {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
 		if err == nil {
