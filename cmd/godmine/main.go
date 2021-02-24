@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mattn/go-redmine"
+	"github.com/cloudogu/go-redmine"
 )
 
 const name = "godmine"
@@ -445,7 +445,7 @@ UpdatedOn: %s
 
 %s
 `[1:],
-		project.ID,
+		project.Id,
 		project.Name,
 		project.Identifier,
 		project.CreatedOn,
@@ -460,7 +460,7 @@ func listProjects() {
 		fatal("Failed to list projects: %s\n", err)
 	}
 	for _, i := range issues {
-		fmt.Printf("%4d: %s\n", i.ID, i.Name)
+		fmt.Printf("%4d: %s\n", i.Id, i.Name)
 	}
 }
 
