@@ -77,6 +77,9 @@ func (c *Client) Project(id int) (*Project, error) {
 
 	decoder := json.NewDecoder(res.Body)
 	var r projectResult
+	if res.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("project (id: %d) was not found", id)
+	}
 	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
@@ -185,7 +188,7 @@ func (c *Client) UpdateProject(project Project) error {
 	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("could not update project (id %d) because it was not found", project.Id)
+		return fmt.Errorf("could not update project (id: %d) because it was not found", project.Id)
 	}
 	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		decoder := json.NewDecoder(res.Body)
