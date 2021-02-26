@@ -29,7 +29,7 @@ type IssueCategory struct {
 }
 
 func (c *Client) IssueCategories(projectId int) ([]IssueCategory, error) {
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/issue_categories.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/issue_categories.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *Client) IssueCategories(projectId int) ([]IssueCategory, error) {
 }
 
 func (c *Client) IssueCategory(id int) (*IssueCategory, error) {
-	res, err := c.Get(c.endpoint + "/issue_categories/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/issue_categories/" + strconv.Itoa(id) + ".json?" + c.apiKeyParameter())
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *Client) CreateIssueCategory(issueCategory IssueCategory) (*IssueCategor
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", c.endpoint+"/issue_categories.json?key="+c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("POST", c.endpoint+"/issue_categories.json?"+c.apiKeyParameter(), strings.NewReader(string(s)))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *Client) UpdateIssueCategory(issueCategory IssueCategory) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", c.endpoint+"/issue_categories/"+strconv.Itoa(issueCategory.Id)+".json?key="+c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("PUT", c.endpoint+"/issue_categories/"+strconv.Itoa(issueCategory.Id)+".json?"+c.apiKeyParameter(), strings.NewReader(string(s)))
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (c *Client) UpdateIssueCategory(issueCategory IssueCategory) error {
 }
 
 func (c *Client) DeleteIssueCategory(id int) error {
-	req, err := http.NewRequest("DELETE", c.endpoint+"/issue_categories/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", c.endpoint+"/issue_categories/"+strconv.Itoa(id)+".json?"+c.apiKeyParameter(), strings.NewReader(""))
 	if err != nil {
 		return err
 	}

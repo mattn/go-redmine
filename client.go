@@ -2,6 +2,7 @@ package redmine
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,29 +11,63 @@ import (
 
 type Client struct {
 	endpoint string
-	apikey   string
+	auth     APIAuth
 	Limit    int
 	Offset   int
 	*http.Client
 }
 
 const NoSetting = -1
+const (
+	AuthTypeBasicAuth = iota
+	AuthTypeTokenQueryParam
+	AuthTypeBasicAuthWithTokenPassword
+	AuthTypeNoAuth
+)
 
 var DefaultLimit int = NoSetting
 var DefaultOffset int = NoSetting
 
-func NewClient(endpoint, apikey string) *Client {
-	return &Client{
+type AuthType int
+
+type APIAuth struct {
+	AuthType AuthType
+	Token    string
+	User     string
+	Password string
+}
+
+func (auth APIAuth) validate() error {
+	if auth.AuthType < AuthTypeBasicAuth || auth.AuthType > AuthTypeNoAuth {
+		return fmt.Errorf("invalid AuthType %d found", auth.AuthType)
+	}
+	return nil
+}
+
+func NewClient(endpoint string, auth APIAuth) (*Client, error) {
+	if err := auth.validate(); err != nil {
+		return nil, errors.Wrapf(err, "could not create redmine client")
+	}
+	client := &Client{
 		endpoint: endpoint,
-		apikey:   apikey,
+		auth:     auth,
 		Limit:    DefaultLimit,
 		Offset:   DefaultOffset,
 		Client:   http.DefaultClient,
 	}
+
+	return client, nil
+}
+
+func (c *Client) buildAuthenticatedURL(urlWithoutAuthInfo string) string {
+	switch c.auth.AuthType {
+
+	}
+	return ""
 }
 
 func (c *Client) apiKeyParameter() string {
-	return "key=" + c.apikey
+	return "key=" + c.auth.Token
 }
 
 func (c *Client) concatParameters(requestParameters ...string) string {

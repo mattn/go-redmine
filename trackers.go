@@ -12,7 +12,7 @@ type trackersResult struct {
 }
 
 func (c *Client) Trackers() ([]IdName, error) {
-	res, err := http.Get(c.endpoint + "/trackers.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := http.Get(c.endpoint + "/trackers.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

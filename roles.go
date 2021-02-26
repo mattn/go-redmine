@@ -11,7 +11,7 @@ type rolesResult struct {
 }
 
 func (c *Client) Roles() ([]IdName, error) {
-	res, err := c.Get(c.endpoint + "/roles.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/roles.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

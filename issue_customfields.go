@@ -25,7 +25,7 @@ func (c *Client) CustomFields() ([]CustomField, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Redmine-API-Key", c.apikey)
+	req.Header.Set("X-Redmine-API-Key", c.auth.Token)
 
 	res, err := c.Do(req)
 	if err != nil {

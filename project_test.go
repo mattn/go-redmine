@@ -49,7 +49,7 @@ func TestClient_Project(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		sut := NewClient(ts.URL, "apiKey")
+		sut, err := NewClient(ts.URL, APIAuth{AuthType: AuthTypeTokenQueryParam, Token: "apiKey"})
 
 		actualProject, err := sut.Project(1)
 

@@ -73,7 +73,7 @@ func (uif *UserByIdFilter) Include(include string) {
 }
 
 func (c *Client) Users() ([]User, error) {
-	res, err := c.Get(c.endpoint + "/users.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/users.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (c *Client) UsersWithFilter(filter *UsersFilter) ([]User, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Redmine-API-Key", c.apikey)
+	req.Header.Add("X-Redmine-API-Key", c.auth.Token)
 	res, err := c.Do(req)
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (c *Client) UsersWithFilter(filter *UsersFilter) ([]User, error) {
 }
 
 func (c *Client) User(id int) (*User, error) {
-	res, err := c.Get(c.endpoint + "/users/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/users/" + strconv.Itoa(id) + ".json?" + c.apiKeyParameter())
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (c *Client) UserByIdAndFilter(id int, filter *UserByIdFilter) (*User, error
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Redmine-API-Key", c.apikey)
+	req.Header.Add("X-Redmine-API-Key", c.auth.Token)
 	res, err := c.Do(req)
 	if err != nil {
 		return nil, err

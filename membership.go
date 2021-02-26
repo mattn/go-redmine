@@ -29,7 +29,7 @@ type Membership struct {
 }
 
 func (c *Client) Memberships(projectId int) ([]Membership, error) {
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/memberships.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/memberships.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *Client) Memberships(projectId int) ([]Membership, error) {
 }
 
 func (c *Client) Membership(id int) (*Membership, error) {
-	res, err := c.Get(c.endpoint + "/memberships/" + strconv.Itoa(id) + ".json?key=" + c.apikey)
+	res, err := c.Get(c.endpoint + "/memberships/" + strconv.Itoa(id) + ".json?" + c.apiKeyParameter())
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *Client) CreateMembership(membership Membership) (*Membership, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", c.endpoint+"/memberships.json?key="+c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("POST", c.endpoint+"/memberships.json?"+c.apiKeyParameter(), strings.NewReader(string(s)))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *Client) UpdateMembership(membership Membership) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", c.endpoint+"/memberships/"+strconv.Itoa(membership.Id)+".json?key="+c.apikey, strings.NewReader(string(s)))
+	req, err := http.NewRequest("PUT", c.endpoint+"/memberships/"+strconv.Itoa(membership.Id)+".json?"+c.apiKeyParameter(), strings.NewReader(string(s)))
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (c *Client) UpdateMembership(membership Membership) error {
 }
 
 func (c *Client) DeleteMembership(id int) error {
-	req, err := http.NewRequest("DELETE", c.endpoint+"/memberships/"+strconv.Itoa(id)+".json?key="+c.apikey, strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", c.endpoint+"/memberships/"+strconv.Itoa(id)+".json?"+c.apiKeyParameter(), strings.NewReader(""))
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,9 @@
 package redmine
 
 import (
+	"errors"
 	"github.com/stretchr/testify/require"
+	"reflect"
 	"testing"
 )
 
@@ -36,6 +38,34 @@ func TestClient_concatParameters(t *testing.T) {
 			c := &Client{}
 			if got := c.concatParameters(tt.args.requestParameters...); got != tt.want {
 				require.Equal(t, tt.want, got)
+			}
+		})
+	}
+}
+
+func TestAPIAuth_validate(t *testing.T) {
+	type fields struct {
+		AuthType AuthType
+	}
+	tests := []struct {
+		name     string
+		authType AuthType
+		want     error
+	}{
+		{"AuthTypeBasicAuth should validate", AuthTypeBasicAuth, nil},
+		{"AuthTypeBasicAuth should validate", AuthTypeBasicAuthWithTokenPassword, nil},
+		{"AuthTypeBasicAuth should validate", AuthTypeTokenQueryParam, nil},
+		{"AuthTypeBasicAuth should validate", AuthTypeNoAuth, nil},
+		{"negative int should return error", -1, errors.New("invalid AuthType -1 found")},
+		{"invalid int should return error", 4, errors.New("invalid AuthType 4 found")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			auth := APIAuth{
+				AuthType: tt.authType,
+			}
+			if got := auth.validate(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("validate() = %v, want %v", got, tt.want)
 			}
 		})
 	}

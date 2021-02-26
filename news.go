@@ -21,7 +21,7 @@ type News struct {
 }
 
 func (c *Client) News(projectId int) ([]News, error) {
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/news.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(projectId) + "/news.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

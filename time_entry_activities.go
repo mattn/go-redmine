@@ -17,7 +17,7 @@ type TimeEntryActivity struct {
 }
 
 func (c *Client) TimeEntryActivities() ([]TimeEntryActivity, error) {
-	res, err := c.Get(c.endpoint + "/enumerations/time_entry_activities.json?key=" + c.apikey + c.getPaginationClause())
+	res, err := c.Get(c.endpoint + "/enumerations/time_entry_activities.json?" + c.apiKeyParameter() + c.getPaginationClause())
 	if err != nil {
 		return nil, err
 	}

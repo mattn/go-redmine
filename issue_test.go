@@ -53,7 +53,7 @@ func Test_getOneIssue(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		sut := NewClient(ts.URL, "apiKey")
+		sut, _ := NewClient(ts.URL, APIAuth{AuthType: AuthTypeTokenQueryParam, Token: "apiKey"})
 
 		actual, err := getOneIssue(sut, 1, nil)
 
