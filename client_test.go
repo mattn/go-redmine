@@ -7,6 +7,13 @@ import (
 	"testing"
 )
 
+const (
+	urlSimple                  = "http://localhost/endpoint"
+	urlWithPort                = "http://localhost:3000/endpoint"
+	urlWithPortContextPath     = "http://localhost:3000/endpoint"
+	urlWithPortPathQueryParams = "http://localhost:3000/endpoint?key=value&key=doublevalue&important_id=2&specialCharacter=äöüß+àÀ%20."
+)
+
 func TestClient_concatParameters(t *testing.T) {
 	type args struct {
 		requestParameters []string

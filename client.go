@@ -59,11 +59,52 @@ func NewClient(endpoint string, auth APIAuth) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) buildAuthenticatedURL(urlWithoutAuthInfo string) string {
-	switch c.auth.AuthType {
+func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request, err error) {
+	const method = "GET"
+	errorMsg := fmt.Sprintf("could not create %s request for %s and auth type %d", method, urlWithoutAuthInfo, c.auth.AuthType)
 
+	req, err = http.NewRequest(method, urlWithoutAuthInfo, nil)
+
+	switch c.auth.AuthType {
+	case AuthTypeBasicAuth:
+		if err != nil {
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		req.SetBasicAuth(c.auth.User, c.auth.Password)
+		return
+	case AuthTypeTokenQueryParam:
+		modifiedURL, err := safelyAddQueryParameter(urlWithoutAuthInfo, "key", c.auth.Token)
+		if err != nil {
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		req, err = http.NewRequest(method, modifiedURL, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		return
+	case AuthTypeBasicAuthWithTokenPassword:
+		if err != nil {
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		req.SetBasicAuth(c.auth.User, c.auth.Token)
+		return
+	case AuthTypeNoAuth:
+		if err != nil {
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		return
 	}
-	return ""
+
+	return nil, errors.New("unsupported auth type") // must never occur because it was validated earlier
+}
+
+func safelyAddQueryParameter(theURL string, key, value string) (string, error) {
+	parsedURL, err := url.Parse(theURL)
+	if err != nil {
+		return "", errors.Wrapf(err, "could not add query parameter %s because parsing the URL %s failed", key, theURL)
+	}
+	parsedURL.Query().Add(key, value)
+	return parsedURL.String(), nil
 }
 
 func (c *Client) apiKeyParameter() string {
