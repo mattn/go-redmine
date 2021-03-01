@@ -3,6 +3,7 @@ package redmine
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -73,10 +74,13 @@ func NewClient(endpoint string, auth APIAuth) (*Client, error) {
 }
 
 func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request, err error) {
-	const method = "GET"
+	return c.authenticatedRequest("GET", urlWithoutAuthInfo, nil)
+}
+
+func (c *Client) authenticatedRequest(method string, urlWithoutAuthInfo string, body io.Reader) (req *http.Request, err error) {
 	errorMsg := fmt.Sprintf("could not create %s request for %s and auth type %d", method, urlWithoutAuthInfo, c.auth.AuthType)
 
-	req, err = http.NewRequest(method, urlWithoutAuthInfo, nil)
+	req, err = http.NewRequest(method, urlWithoutAuthInfo, body)
 
 	switch c.auth.AuthType {
 	case AuthTypeBasicAuth:
@@ -86,11 +90,7 @@ func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request,
 		req.SetBasicAuth(c.auth.User, c.auth.Password)
 		return req, nil
 	case AuthTypeTokenQueryParam:
-		modifiedURL, err := safelyAddQueryParameter(urlWithoutAuthInfo, "key", c.auth.Token)
-		if err != nil {
-			return nil, errors.Wrap(err, errorMsg)
-		}
-		req, err = http.NewRequest(method, modifiedURL, nil)
+		err := safelyAddQueryParameter(req, "key", c.auth.Token)
 		if err != nil {
 			return nil, errors.Wrap(err, errorMsg)
 		}
@@ -111,13 +111,20 @@ func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request,
 	return nil, errors.New("unsupported auth type") // must never occur because it was validated earlier
 }
 
-func safelyAddQueryParameter(theURL string, key, value string) (string, error) {
-	parsedURL, err := url.Parse(theURL)
-	if err != nil {
-		return "", errors.Wrapf(err, "could not add query parameter %s because parsing the URL %s failed", key, theURL)
+func safelyAddQueryParameter(req *http.Request, key, value string) error {
+	if key == "" {
+		return nil
 	}
-	parsedURL.Query().Add(key, value)
-	return parsedURL.String(), nil
+
+	parsedURL, err := url.Parse(req.URL.String())
+	if err != nil {
+		return errors.Wrapf(err, "could not add query parameter %s because parsing the URL %s failed", key, parsedURL)
+	}
+	query := parsedURL.Query()
+	query.Add(key, value)
+	req.URL.RawQuery = query.Encode()
+
+	return nil
 }
 
 func (c *Client) apiKeyParameter() string {
