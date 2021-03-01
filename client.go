@@ -39,8 +39,21 @@ type APIAuth struct {
 
 func (auth APIAuth) validate() error {
 	if auth.AuthType < AuthTypeBasicAuth || auth.AuthType > AuthTypeNoAuth {
-		return fmt.Errorf("invalid AuthType %d found", auth.AuthType)
+		return fmt.Errorf("invalid auth configuration: AuthType %d found", auth.AuthType)
 	}
+
+	if auth.AuthType == AuthTypeBasicAuth || auth.AuthType == AuthTypeBasicAuthWithTokenPassword {
+		if auth.User == "" {
+			return fmt.Errorf("invalid auth configuration for type %d: user must not be empty", auth.AuthType)
+		}
+	}
+
+	if auth.AuthType == AuthTypeTokenQueryParam || auth.AuthType == AuthTypeBasicAuthWithTokenPassword {
+		if auth.Token == "" {
+			return fmt.Errorf("invalid auth configuration for type %d: API token must not be empty", auth.AuthType)
+		}
+	}
+
 	return nil
 }
 
@@ -71,7 +84,7 @@ func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request,
 			return nil, errors.Wrap(err, errorMsg)
 		}
 		req.SetBasicAuth(c.auth.User, c.auth.Password)
-		return
+		return req, nil
 	case AuthTypeTokenQueryParam:
 		modifiedURL, err := safelyAddQueryParameter(urlWithoutAuthInfo, "key", c.auth.Token)
 		if err != nil {
@@ -81,18 +94,18 @@ func (c *Client) authenticatedGet(urlWithoutAuthInfo string) (req *http.Request,
 		if err != nil {
 			return nil, errors.Wrap(err, errorMsg)
 		}
-		return
+		return req, nil
 	case AuthTypeBasicAuthWithTokenPassword:
 		if err != nil {
 			return nil, errors.Wrap(err, errorMsg)
 		}
 		req.SetBasicAuth(c.auth.User, c.auth.Token)
-		return
+		return req, nil
 	case AuthTypeNoAuth:
 		if err != nil {
 			return nil, errors.Wrap(err, errorMsg)
 		}
-		return
+		return req, nil
 	}
 
 	return nil, errors.New("unsupported auth type") // must never occur because it was validated earlier
