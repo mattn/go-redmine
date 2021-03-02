@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	errors2 "github.com/pkg/errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -58,9 +59,14 @@ type Project struct {
 
 // Project returns a single project without additional fields.
 func (c *Client) Project(id int) (*Project, error) {
-	res, err := c.Get(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json?" + c.apiKeyParameter())
+	req, err := c.authenticatedGet(c.endpoint + "/projects/" + strconv.Itoa(id) + ".json")
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrapf(err, "error while creating GET request for project %d ", id)
+	}
+
+	res, err := c.Do(req)
+	if err != nil {
+		return nil, errors2.Wrapf(err, "could not read project %d ", id)
 	}
 	defer res.Body.Close()
 
