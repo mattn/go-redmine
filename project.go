@@ -101,10 +101,18 @@ func isHTTPStatusSuccessful(httpStatus int, acceptedStatuses []int) bool {
 }
 
 func (c *Client) Projects() ([]Project, error) {
-	parameters := c.concatParameters(c.apiKeyParameter(), c.getPaginationClause())
-	res, err := c.Get(c.endpoint + "/projects.json?" + parameters)
+	req, err := c.authenticatedGet(c.endpoint + "/projects.json")
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrap(err, "error while creating GET request for projects")
+	}
+	err = safelyAddQueryParameters(req, c.getPaginationClauseParams())
+	if err != nil {
+		return nil, errors2.Wrap(err, "error while adding pagination parameters to project request")
+	}
+
+	res, err := c.Do(req)
+	if err != nil {
+		return nil, errors2.Wrap(err, "could not read projects")
 	}
 	defer res.Body.Close()
 
@@ -133,15 +141,14 @@ func (c *Client) CreateProject(project Project) (*Project, error) {
 		return nil, err
 	}
 
-	parameters := c.concatParameters(c.apiKeyParameter())
-	req, err := http.NewRequest("POST", c.endpoint+"/projects.json?"+parameters, strings.NewReader(string(s)))
+	req, err := c.authenticatedRequest("POST", c.endpoint+"/projects.json", strings.NewReader(string(s)))
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrapf(err, "error while creating POST request for project %s ", project.Identifier)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrapf(err, "could not create project %s ", project.Identifier)
 	}
 	defer res.Body.Close()
 
@@ -170,15 +177,14 @@ func (c *Client) UpdateProject(project Project) error {
 		return err
 	}
 
-	parameters := c.concatParameters(c.apiKeyParameter())
-	req, err := http.NewRequest("PUT", c.endpoint+"/projects/"+strconv.Itoa(project.Id)+".json?"+parameters, strings.NewReader(string(s)))
+	req, err := c.authenticatedRequest("PUT", c.endpoint+"/projects/"+strconv.Itoa(project.Id)+".json", strings.NewReader(string(s)))
 	if err != nil {
-		return err
+		return errors2.Wrapf(err, "error while creating PUT request for project %d ", project.Id)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
 	if err != nil {
-		return err
+		return errors2.Wrapf(err, "could not update project %d ", project.Id)
 	}
 	defer res.Body.Close()
 
@@ -200,15 +206,14 @@ func (c *Client) UpdateProject(project Project) error {
 }
 
 func (c *Client) DeleteProject(id int) error {
-	parameters := c.concatParameters(c.apiKeyParameter())
-	req, err := http.NewRequest("DELETE", c.endpoint+"/projects/"+strconv.Itoa(id)+".json?"+parameters, strings.NewReader(""))
+	req, err := c.authenticatedRequest("DELETE", c.endpoint+"/projects/"+strconv.Itoa(id)+".json", strings.NewReader(""))
 	if err != nil {
-		return err
+		return errors2.Wrapf(err, "error while creating DELETE for project %d ", id)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(req)
 	if err != nil {
-		return err
+		return errors2.Wrapf(err, "could not delete project %d ", id)
 	}
 	defer res.Body.Close()
 

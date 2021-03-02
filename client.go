@@ -29,6 +29,11 @@ const (
 var DefaultLimit int = NoSetting
 var DefaultOffset int = NoSetting
 
+type keyValue struct {
+	key   string
+	value string
+}
+
 type AuthType int
 
 type APIAuth struct {
@@ -127,6 +132,16 @@ func safelyAddQueryParameter(req *http.Request, key, value string) error {
 	return nil
 }
 
+func safelyAddQueryParameters(req *http.Request, kvs []keyValue) error {
+	for _, kv := range kvs {
+		err := safelyAddQueryParameter(req, kv.key, kv.value)
+		if err != nil {
+			return errors.Wrapf(err, "could not add parameter to request")
+		}
+	}
+	return nil
+}
+
 func (c *Client) apiKeyParameter() string {
 	return "key=" + c.auth.Token
 }
@@ -170,6 +185,17 @@ func (c *Client) getPaginationClause() string {
 		clause = clause + fmt.Sprintf("&offset=%d", c.Offset)
 	}
 	return clause
+}
+
+func (c *Client) getPaginationClauseParams() []keyValue {
+	queryParams := []keyValue{}
+	if c.Limit > -1 {
+		queryParams = append(queryParams, keyValue{key: "limit", value: strconv.Itoa(c.Limit)})
+	}
+	if c.Offset > -1 {
+		queryParams = append(queryParams, keyValue{key: "offset", value: strconv.Itoa(c.Offset)})
+	}
+	return queryParams
 }
 
 type errorsResult struct {
