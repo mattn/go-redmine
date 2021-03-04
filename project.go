@@ -9,17 +9,6 @@ import (
 	"strings"
 )
 
-const (
-	// since Redmine 2.6.0
-	ProjectAdditionalFieldTrackers = "trackers"
-	// since Redmine 2.6.0
-	ProjectAdditionalFieldIssueCategories = "issue_categories"
-	// since Redmine 2.6.0
-	ProjectAdditionalFieldEnabledModules = "enabled_modules"
-	// since Redmine 3.4.0
-	ProjectAdditionalFieldTimeEntryActivities = "time_entry_activities"
-)
-
 type projectRequest struct {
 	Project Project `json:"project"`
 }
