@@ -5,25 +5,49 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Client struct {
 	endpoint string
 	apikey   string
+	Limit    int
+	Offset   int
 	*http.Client
-	Limit  int
-	Offset int
 }
 
-var DefaultLimit int = -1  // "-1" means "No setting"
-var DefaultOffset int = -1 //"-1" means "No setting"
+const NoSetting = -1
+
+var DefaultLimit int = NoSetting
+var DefaultOffset int = NoSetting
 
 func NewClient(endpoint, apikey string) *Client {
-	return &Client{endpoint, apikey, http.DefaultClient, DefaultLimit, DefaultOffset}
+	return &Client{
+		endpoint: endpoint,
+		apikey:   apikey,
+		Limit:    DefaultLimit,
+		Offset:   DefaultOffset,
+		Client:   http.DefaultClient,
+	}
+}
+
+func (c *Client) apiKeyParameter() string {
+	return "key=" + c.apikey
+}
+
+func (c *Client) concatParameters(requestParameters ...string) string {
+	cleanedParams := []string{}
+	for _, param := range requestParameters {
+		if param != "" {
+			cleanedParams = append(cleanedParams, param)
+		}
+	}
+
+	return strings.Join(cleanedParams, "&")
 }
 
 // URLWithFilter return string url by concat endpoint, path and filter
-// err != nil when endpoin can not parse
+// err != nil when endpoint can not parse
 func (c *Client) URLWithFilter(path string, f Filter) (string, error) {
 	var fullURL *url.URL
 	fullURL, err := url.Parse(c.endpoint)
@@ -44,10 +68,10 @@ func (c *Client) URLWithFilter(path string, f Filter) (string, error) {
 func (c *Client) getPaginationClause() string {
 	clause := ""
 	if c.Limit > -1 {
-		clause = clause + fmt.Sprintf("&limit=%v", c.Limit)
+		clause = clause + fmt.Sprintf("&limit=%d", c.Limit)
 	}
 	if c.Offset > -1 {
-		clause = clause + fmt.Sprintf("&offset=%v", c.Offset)
+		clause = clause + fmt.Sprintf("&offset=%d", c.Offset)
 	}
 	return clause
 }

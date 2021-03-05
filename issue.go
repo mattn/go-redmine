@@ -154,7 +154,7 @@ func (c *Client) CreateIssue(issue Issue) (*Issue, error) {
 
 	decoder := json.NewDecoder(res.Body)
 	var r issueRequest
-	if res.StatusCode != 201 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusCreated}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
 		if err == nil {
@@ -187,10 +187,10 @@ func (c *Client) UpdateIssue(issue Issue) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
+	if res.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("could not update issue (id: %d) because it was not found", issue.Id)
 	}
-	if res.StatusCode != 200 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		decoder := json.NewDecoder(res.Body)
 		var er errorsResult
 		err = decoder.Decode(&er)
@@ -216,12 +216,12 @@ func (c *Client) DeleteIssue(id int) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 404 {
-		return errors.New("Not Found")
+	if res.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("could not delete issue (id: %d) because it was not found", id)
 	}
 
 	decoder := json.NewDecoder(res.Body)
-	if res.StatusCode != 200 {
+	if !isHTTPStatusSuccessful(res.StatusCode, []int{http.StatusOK, http.StatusNoContent}) {
 		var er errorsResult
 		err = decoder.Decode(&er)
 		if err == nil {
@@ -319,8 +319,8 @@ func getOneIssue(c *Client, id int, args map[string]string) (*Issue, error) {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 404 {
-		return nil, errors.New("Not Found")
+	if res.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("issue (id: %d) was not found", id)
 	}
 
 	decoder := json.NewDecoder(res.Body)

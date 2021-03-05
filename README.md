@@ -4,7 +4,7 @@ Intefaces to redmine.
 
 ## APIs
 
-Provide Interfaces to redmine APIs.
+Provide interfaces to Redmine JSON API (Redmine version 4.1).
 
 |API                |Implements|
 |-------------------|---------:|
