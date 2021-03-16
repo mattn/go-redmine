@@ -24,9 +24,10 @@ import (
 
 const name = "godmine"
 
-const version = "0.0.3"
-
-var revision = "HEAD"
+var (
+	// Version of the application
+	Version string
+)
 
 type config struct {
 	Endpoint string `json:"endpoint"`
@@ -972,7 +973,7 @@ func main() {
 	flag.Parse()
 
 	if *printVersion {
-		fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
+		fmt.Printf("%s %s (runtime version: %s)\n", name, Version, runtime.Version())
 		return
 	}
 	if flag.NArg() <= 1 {
