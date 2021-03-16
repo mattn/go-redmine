@@ -63,6 +63,10 @@ func (auth APIAuth) validate() error {
 	return nil
 }
 
+// NewClient creates a new Redmine client.
+//
+// Deprecated: Use redmine.ClientBuilder to create a redmine client that supports more options and
+// detects configuration mistakes.
 func NewClient(endpoint string, auth APIAuth) (*Client, error) {
 	if err := auth.validate(); err != nil {
 		return nil, errors.Wrapf(err, "could not create redmine client")
