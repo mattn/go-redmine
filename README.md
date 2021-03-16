@@ -1,110 +1,43 @@
 # go-redmine
 
-Intefaces to redmine.
+Intefaces to Redmine.
+
+### Using `go-redmine`
+
+You can find more information about using this software in
+- [docs/usage_en.md (english)](docs/usage_en.md) or
+- [docs/usage_de.md (deutsch)](docs/usage_de.md)
+
+### Developing `go-redmine`
+
+You can find more information about building and testing in
+- [docs/development_en.md (english)](docs/development_en.md) or
+- [docs/development_de.md (deutsch)](docs/development_de.md)
+
+## Original author
+
+This is a fork of Yasuhiro Matsumoto's project [`go-redmine`](https://github.com/mattn/go-redmine)
+
+## License
+
+This runs under the MIT license.
+
+---
+### What is the Cloudogu EcoSystem?
+
+The Cloudogu EcoSystem is an open platform, which lets you choose how and where your team creates great software. Each service or tool is delivered as a Dogu, a Docker container. Each Dogu can easily be integrated in your environment just by pulling it from our registry. We have a growing number of ready-to-use Dogus, e.g. SCM-Manager, Jenkins, Nexus, SonarQube, Redmine and many more. Every Dogu can be tailored to your specific needs. Take advantage of a central authentication service, a dynamic navigation, that lets you easily switch between the web UIs and a smart configuration magic, which automatically detects and responds to dependencies between Dogus. The Cloudogu EcoSystem is open source and it runs either on-premises or in the cloud. The Cloudogu EcoSystem is developed by Cloudogu GmbH under [MIT License](https://cloudogu.com/license.html).
+
+### How to get in touch?
+Want to talk to the Cloudogu team? Need help or support? There are several ways to get in touch with us:
+
+* [Website](https://cloudogu.com)
+* [myCloudogu-Forum](https://forum.cloudogu.com/topic/34?ctx=1)
+* [Email hello@cloudogu.com](mailto:hello@cloudogu.com)
+
+---
+&copy; 2021 Cloudogu GmbH - MADE WITH :heart:&nbsp;FOR DEV ADDICTS. [Legal notice / Impressum](https://cloudogu.com/imprint.html)
 
 ## APIs
 
 Provide interfaces to Redmine JSON API (Redmine version 4.1).
 
-|API                |Implements|
-|-------------------|---------:|
-|Issues             |      100%|
-|Projects           |      100%|
-|Project Memberships|      100%|
-|Users              |        0%|
-|Time Entries       |      100%|
-|News               |      100%|
-|Issue Relations    |      100%|
-|Versions           |      100%|
-|Wiki Pages         |      100%|
-|Queries            |        0%|
-|Attachments        |        0%|
-|Issue Statuses     |      100%|
-|Trackers           |      100%|
-|Enumerations       |      100%|
-|Issue Categories   |      100%|
-|Roles              |      100%|
-|Groups             |        0%|
-
-## Godmine
-
-Provide command line tool for redmine.
-
-### Usage
-
-    godmine <command> <subcommand> [arguments]
-    
-    Project Commands:
-      add      a create project with text editor.
-                 $ godmine p a
-    
-      create   c create project from given arguments.
-                 $ godmine p c name identifier description
-    
-      update   u update given project.
-                 $ godmine p u 1
-    
-      show     s show given project.
-                 $ godmine p s 1
-    
-      delete   d delete given project.
-                 $ godmine p d 1
-    
-      list     l listing projects.
-                 $ godmine p l
-    
-    Issue Commands:
-      add      a create issue with text editor.
-                 $ godmine i a
-    
-      create   c create issue from given arguments.
-                 $ godmine i c subject description
-    
-      update   u update given issue.
-                 $ godmine i u 1
-    
-      show     s show given issue.
-                 $ godmine i s 1
-    
-      delete   d delete given issue.
-                 $ godmine i d 1
-    
-      close    x close given issue.
-                 $ godmine i x 1
-    
-      notes    n add notes to given issue.
-                 $ godmine i n 1
-    
-      list     l listing issues.
-                 $ godmine i l
-
-# Settings
-
-To use this, you should create `settings.json` in:
-
-UNIX:
-
-    ~/.config/godmine/settings.json
-
-WINDOWS:
-
-    %APPDATA%\godmine/settings.json
-
-Write following:
-
-    {
-    	"endpoint": "http://redmine.example.com",
-    	"apikey": "YOUR-API-KEY",
-    	"project": 1 // default project id
-    }
-
-If you want switching configuration file, you should use `GODMINE_ENV` environment variable.
-If you set `GODMINE_ENV` to *mine*, godmine use `settings.mine.json` to configuration file.
-
-# License
-
-MIT
-
-# Author
-
-Yasuhiro Matsumoto (a.k.a mattn)
