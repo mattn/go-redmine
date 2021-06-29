@@ -55,6 +55,7 @@ type Issue struct {
 	Author       *IdName        `json:"author"`
 	FixedVersion *IdName        `json:"fixed_version"`
 	AssignedTo   *IdName        `json:"assigned_to"`
+	AssignedToId int            `json:"assigned_to_id"`
 	Category     *IdName        `json:"category"`
 	CategoryId   int            `json:"category_id"`
 	Notes        string         `json:"notes"`
