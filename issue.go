@@ -68,6 +68,7 @@ type Issue struct {
 	CustomFields []*CustomField `json:"custom_fields,omitempty"`
 	Uploads      []*Upload      `json:"uploads"`
 	DoneRatio    float32        `json:"done_ratio"`
+	EstimatedHours float32      `json:"estimated_hours"`
 	Journals     []*Journal     `json:"journals"`
 }
 
