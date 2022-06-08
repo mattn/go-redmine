@@ -2,6 +2,12 @@
 
 Intefaces to redmine.
 
+## Module Install
+
+```
+go get github.com/mattn/go-redmine 
+```
+
 ## APIs
 
 Provide Interfaces to redmine APIs.
@@ -29,6 +35,12 @@ Provide Interfaces to redmine APIs.
 ## Godmine
 
 Provide command line tool for redmine.
+
+## Install
+
+```
+go install github.com/mattn/go-redmine/cmd/godmine@latest
+```
 
 ### Usage
 
