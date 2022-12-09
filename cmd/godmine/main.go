@@ -94,7 +94,10 @@ func notesFromEditor(issue *redmine.Issue) (string, error) {
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	if err := run([]string{editor, file}); err != nil {
+	cmd := []string{editor}
+	cmd = append(cmd, conf.EditorArguments...)
+	cmd = append(cmd, file)
+	if err := run(cmd); err != nil {
 		return "", err
 	}
 
@@ -127,7 +130,10 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	if err := run([]string{editor, file}); err != nil {
+	cmd := []string{editor}
+	cmd = append(cmd, conf.EditorArguments...)
+	cmd = append(cmd, file)
+	if err := run(cmd); err != nil {
 		return nil, err
 	}
 
@@ -173,7 +179,10 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	if err := run([]string{editor, file}); err != nil {
+	cmd := []string{editor}
+	cmd = append(cmd, conf.EditorArguments...)
+	cmd = append(cmd, file)
+	if err := run(cmd); err != nil {
 		return nil, err
 	}
 
@@ -673,7 +682,10 @@ func editWikiPage(title string) error {
 
 	ioutil.WriteFile(file, []byte(page.Text), 0600)
 
-	if err = run([]string{editor, file}); err != nil {
+	cmd := []string{editor}
+	cmd = append(cmd, conf.EditorArguments...)
+	cmd = append(cmd, file)
+	if err = run(cmd); err != nil {
 		return err
 	}
 
@@ -773,7 +785,10 @@ func editConfigFile() error {
 
 	editor := getEditor()
 
-	return run([]string{editor, file})
+	cmd := []string{editor}
+	cmd = append(cmd, conf.EditorArguments...)
+	cmd = append(cmd, file)
+	return run(cmd)
 }
 
 func createConfigFileName() string {
