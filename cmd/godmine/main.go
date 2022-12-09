@@ -29,11 +29,12 @@ const version = "0.0.3"
 var revision = "HEAD"
 
 type config struct {
-	Endpoint string `json:"endpoint"`
-	Apikey   string `json:"apikey"`
-	Project  int    `json:"project"`
-	Editor   string `json:"editor"`
-	Insecure bool   `json:"insecure"`
+	Endpoint        string   `json:"endpoint"`
+	Apikey          string   `json:"apikey"`
+	Project         int      `json:"project"`
+	Editor          string   `json:"editor"`
+	EditorArguments []string `json:"editorArguments"`
+	Insecure        bool     `json:"insecure"`
 }
 
 var (
