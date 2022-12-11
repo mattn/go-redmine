@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/mattn/go-redmine"
+	"github.com/mattn/go-shellwords"
 )
 
 const name = "godmine"
@@ -29,12 +30,11 @@ const version = "0.0.3"
 var revision = "HEAD"
 
 type config struct {
-	Endpoint        string   `json:"endpoint"`
-	Apikey          string   `json:"apikey"`
-	Project         int      `json:"project"`
-	Editor          string   `json:"editor"`
-	EditorArguments []string `json:"editorArguments"`
-	Insecure        bool     `json:"insecure"`
+	Endpoint string `json:"endpoint"`
+	Apikey   string `json:"apikey"`
+	Project  int    `json:"project"`
+	Editor   string `json:"editor"`
+	Insecure bool   `json:"insecure"`
 }
 
 var (
@@ -87,17 +87,17 @@ func notesFromEditor(issue *redmine.Issue) (string, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := getEditor()
+	editor, err := getEditor()
+	if err != nil {
+		return "", err
+	}
 
 	body := "### Notes Here ###\n"
 	contents := issue.GetTitle() + "\n" + body
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	cmd := []string{editor}
-	cmd = append(cmd, conf.EditorArguments...)
-	cmd = append(cmd, file)
-	if err := run(cmd); err != nil {
+	if err := run(append(editor, file)); err != nil {
 		return "", err
 	}
 
@@ -122,7 +122,10 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := getEditor()
+	editor, err := getEditor()
+	if err != nil {
+		return nil, err
+	}
 
 	if contents == "" {
 		contents = "### Subject Here ###\n### Description Here ###\n"
@@ -130,10 +133,7 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	cmd := []string{editor}
-	cmd = append(cmd, conf.EditorArguments...)
-	cmd = append(cmd, file)
-	if err := run(cmd); err != nil {
+	if err := run(append(editor, file)); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +171,10 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := getEditor()
+	editor, err := getEditor()
+	if err != nil {
+		return nil, err
+	}
 
 	if contents == "" {
 		contents = "### Name Here ###\n### Identifier Here ###\n### Description Here ###\n"
@@ -179,10 +182,7 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 
 	ioutil.WriteFile(file, []byte(contents), 0600)
 
-	cmd := []string{editor}
-	cmd = append(cmd, conf.EditorArguments...)
-	cmd = append(cmd, file)
-	if err := run(cmd); err != nil {
+	if err := run(append(editor, file)); err != nil {
 		return nil, err
 	}
 
@@ -217,7 +217,7 @@ func projectFromEditor(contents string) (*redmine.Project, error) {
 	return &project, nil
 }
 
-func getEditor() string {
+func getEditor() ([]string, error) {
 	editor := conf.Editor
 	if editor == "" {
 		editor = os.Getenv("EDITOR")
@@ -229,7 +229,7 @@ func getEditor() string {
 			}
 		}
 	}
-	return editor
+	return shellwords.Parse(editor)
 }
 func getConfig() config {
 	file := createConfigFileName()
@@ -678,14 +678,14 @@ func editWikiPage(title string) error {
 		file = filepath.Join(os.Getenv("HOME"), ".config", "godmine", newf)
 	}
 	defer os.Remove(file)
-	editor := getEditor()
+	editor, err := getEditor()
+	if err != nil {
+		return err
+	}
 
 	ioutil.WriteFile(file, []byte(page.Text), 0600)
 
-	cmd := []string{editor}
-	cmd = append(cmd, conf.EditorArguments...)
-	cmd = append(cmd, file)
-	if err = run(cmd); err != nil {
+	if err = run(append(editor, file)); err != nil {
 		return err
 	}
 
@@ -783,12 +783,12 @@ func showConfigFile() {
 func editConfigFile() error {
 	file := createConfigFileName()
 
-	editor := getEditor()
+	editor, err := getEditor()
+	if err != nil {
+		return err
+	}
 
-	cmd := []string{editor}
-	cmd = append(cmd, conf.EditorArguments...)
-	cmd = append(cmd, file)
-	return run(cmd)
+	return run(append(editor, file))
 }
 
 func createConfigFileName() string {
