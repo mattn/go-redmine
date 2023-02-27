@@ -41,11 +41,7 @@ func (c *Client) Memberships(projectId int) ([]Membership, error) {
 		return nil, errors.New("Not Found")
 	}
 	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
+		err = errorFromResp(decoder, res.StatusCode)
 	} else {
 		err = decoder.Decode(&r)
 	}
@@ -68,11 +64,7 @@ func (c *Client) Membership(id int) (*Membership, error) {
 		return nil, errors.New("Not Found")
 	}
 	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
+		err = errorFromResp(decoder, res.StatusCode)
 	} else {
 		err = decoder.Decode(&r)
 	}
@@ -103,11 +95,7 @@ func (c *Client) CreateMembership(membership Membership) (*Membership, error) {
 	decoder := json.NewDecoder(res.Body)
 	var r membershipRequest
 	if res.StatusCode != 201 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
+		err = errorFromResp(decoder, res.StatusCode)
 	} else {
 		err = decoder.Decode(&r)
 	}
@@ -140,11 +128,7 @@ func (c *Client) UpdateMembership(membership Membership) error {
 	}
 	if res.StatusCode != 200 {
 		decoder := json.NewDecoder(res.Body)
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
+		err = errorFromResp(decoder, res.StatusCode)
 	}
 	if err != nil {
 		return err
@@ -170,11 +154,7 @@ func (c *Client) DeleteMembership(id int) error {
 
 	decoder := json.NewDecoder(res.Body)
 	if res.StatusCode != 200 {
-		var er errorsResult
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
-		}
+		err = errorFromResp(decoder, res.StatusCode)
 	}
 	return err
 }

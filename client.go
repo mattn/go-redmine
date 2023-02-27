@@ -1,10 +1,14 @@
 package redmine
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Client struct {
@@ -54,6 +58,20 @@ func (c *Client) getPaginationClause() string {
 
 type errorsResult struct {
 	Errors []string `json:"errors"`
+}
+
+func errorFromResp(bodyDecoder *json.Decoder, httpStatus int) (err error) {
+	var er errorsResult
+	err = bodyDecoder.Decode(&er)
+	if err == nil { /* error from redmine */
+		return errors.New(strings.Join(er.Errors, "\n"))
+	}
+
+	if err == io.EOF { /* empty body */
+		err = errors.New(http.StatusText(httpStatus))
+	}
+
+	return
 }
 
 type IdName struct {
